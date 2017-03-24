@@ -7,6 +7,7 @@ import tushare as ts
 import json
 import pandas as pd
 import numpy as np
+import datetime
 
 class Database():
 	def __init__(self):
@@ -28,5 +29,19 @@ class Database():
 
 
 	#存入，根据股票id获取股票数据放入db
-	def save_data_into_db_by_id(self,id):
+	def save_data_into_db_by_id(self,ticker_id):
 		collection = self.db.daily_price
+		try:
+			ticker_data = ts.get_k_data(ticker_id);
+			print ticker_data,'=============================='
+			now = datetime.date.today()
+			ticker_data['update_date'] = str(now)
+			ticker_json = json.loads(ticker_data.to_json(orient="records"))
+			collection.insert(ticker_json)
+			print 'insert success ==========================='
+		except:#如果获取失败
+			f = open('error.txt','w')
+			f.truncate()  
+			f.write(ticker_id)  
+
+
