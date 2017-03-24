@@ -1,3 +1,4 @@
+#coding: utf-8
 print '================== may the force be with you ================='
 import pymongo
 from pprint import pprint
