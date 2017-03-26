@@ -10,6 +10,7 @@ class Database():
 		self.client = MongoClient('localhost',27017);
 		self.db = self.client.ticker_master
 
+
 	def save_ticker_names_into_db(self):
 		collection = self.db.symbol
 		ticker_list = ts.get_stock_basics()
