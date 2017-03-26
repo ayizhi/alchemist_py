@@ -10,4 +10,3 @@ import datetime
 
 if __name__ == '__main__' :
     Db = Database();
-    Db .save_ticker_names_into_db()
