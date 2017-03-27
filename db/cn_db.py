@@ -31,6 +31,8 @@ class Database():
 	#存入，根据股票id获取股票数据放入db
 	def save_data_into_db_by_id(self,ticker_id):
 		collection = self.db.daily_price
+		f = open('error.txt','w')
+
 		try:
 			ticker_data = ts.get_k_data(ticker_id);
 			print ticker_data,'=============================='
@@ -40,8 +42,9 @@ class Database():
 			collection.insert(ticker_json)
 			print 'insert success ==========================='
 		except:#如果获取失败
-			f = open('error.txt','w')
 			f.truncate()  
 			f.write(ticker_id)  
+		f.close()
 
+	#存入，从数据库里的最后一天到今天
 
