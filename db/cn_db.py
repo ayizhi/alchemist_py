@@ -47,4 +47,14 @@ class Database():
 		f.close()
 
 	#存入，从数据库里的最后一天到今天
+	def save_data_into_db_by_id_until_today(self,ticker_id):
+		collection = self.db.daily_price
+		f = open('error.txt','w')
+		ticker_last_date = collection.find({'code': ticker_id}).sort('date',pymongo.DESCENDING)
+		for item in ticker_last_date:
+			pprint(item)
+		pprint('================')
+		pprint('================')
+		pprint('================')
+		pprint('================')
 
