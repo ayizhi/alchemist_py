@@ -18,6 +18,4 @@ if __name__ == '__main__':
 		print ticker_id,ticker_name,'-----'
 		Db.save_data_into_db_by_id_until_today(ticker_id)
 
-		if i > 10 :
-			break;
 

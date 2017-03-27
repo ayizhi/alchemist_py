@@ -50,11 +50,27 @@ class Database():
 	def save_data_into_db_by_id_until_today(self,ticker_id):
 		collection = self.db.daily_price
 		f = open('error.txt','w')
-		ticker_last_date = collection.find({'code': ticker_id}).sort('date',pymongo.DESCENDING)
-		for item in ticker_last_date:
-			pprint(item)
-		pprint('================')
-		pprint('================')
-		pprint('================')
-		pprint('================')
+		ticker_list = collection.find({'code': ticker_id}).sort('date',pymongo.DESCENDING)
+		last_date = ticker_list[0]['date']
+		#往后算一天
+		begin_date = datetime.datetime.strptime(last_date,'%Y-%m-%d') + datetime.timedelta(days = 1)
+		today = datetime.date.today()
+		#都转为str
+		begin_date = begin_date.strftime("%Y-%m-%d")
+		today = today.strftime("%Y-%m-%d")
+		try:
+			print ('===========',begin_date,'=====',today,'============')
+			ticker_data = ts.get_k_data(ticker_id,start=begin_date,end=today,retry_count=10)
+			print ticker_data
+			ticker_json = json.loads(ticker_data.to_json(orient="records"))
+			collection.insert(ticker_json)
+			print 'insert success ==========================='
+		except:
+			print 'data has problem'
+			f.write(ticker_id)
+			f.write(',\\')
+		f.close()
+
+
+
 
