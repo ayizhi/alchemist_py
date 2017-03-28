@@ -21,12 +21,6 @@ class Database():
 		ticker_list['code'] = ticker_list.index
 		ticker_json = json.loads(ticker_list.to_json(orient='records'))
 		collection.insert(ticker_json)
-	
-	#获取 所有股票id，name，baseinfo
-	def get_ticker_ids(self):
-		collection = self.db.symbol
-		return collection.find()
-
 
 	#存入，根据股票id获取股票数据放入db
 	def save_data_into_db_by_id(self,ticker_id):
@@ -71,11 +65,25 @@ class Database():
 			f.write(',\\')
 		f.close()
 
-	#读取
-	def get_ticker_by_id(ticker_id,start="",end=datetime.date.today()):
-		print ticker_id,start,end
-		print '============'
 
+	#获取 所有股票id，name，baseinfo
+	def get_ticker_ids(self):
+		collection = self.db.symbol
+		return collection.find()
 
-
-
+	#读取一只股票的所有信息
+	def get_ticker_data_by_id(self,ticker_id,start='',end=datetime.date.today()):
+		collection = self.db.daily_price
+		end = end.strftime('%Y-%m-%d')
+		try:
+			date_range = {'$lt': end}
+			if start != '':
+				date_range['$gte'] = start
+			ticker_data = collection.find({'code': ticker_id,'date':date_range})
+			return ticker_data
+		except:
+			print 'get data by id has error'
+			f = open('error.txt','w')
+			f.write(ticker_id)
+			f.write(',\\')
+			f.close()
