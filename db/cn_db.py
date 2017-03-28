@@ -50,15 +50,15 @@ class Database():
 	def save_data_into_db_by_id_until_today(self,ticker_id):
 		collection = self.db.daily_price
 		f = open('error.txt','w')
-		ticker_list = collection.find({'code': ticker_id}).sort('date',pymongo.DESCENDING)
-		last_date = ticker_list[0]['date']
-		#往后算一天
-		begin_date = datetime.datetime.strptime(last_date,'%Y-%m-%d') + datetime.timedelta(days = 1)
-		today = datetime.date.today()
-		#都转为str
-		begin_date = begin_date.strftime("%Y-%m-%d")
-		today = today.strftime("%Y-%m-%d")
 		try:
+			ticker_list = collection.find({'code': ticker_id}).sort('date',pymongo.DESCENDING)
+			last_date = ticker_list[0]['date']
+			#往后算一天
+			begin_date = datetime.datetime.strptime(last_date,'%Y-%m-%d') + datetime.timedelta(days = 1)
+			today = datetime.date.today()
+			#都转为str
+			begin_date = begin_date.strftime("%Y-%m-%d")
+			today = today.strftime("%Y-%m-%d")
 			print ('===========',begin_date,'=====',today,'============')
 			ticker_data = ts.get_k_data(ticker_id,start=begin_date,end=today,retry_count=10)
 			print ticker_data
@@ -70,6 +70,11 @@ class Database():
 			f.write(ticker_id)
 			f.write(',\\')
 		f.close()
+
+	#读取
+	def get_ticker_by_id(ticker_id,start="",end=datetime.date.today()):
+		print ticker_id,start,end
+		print '============'
 
 
 
