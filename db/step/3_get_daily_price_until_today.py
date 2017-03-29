@@ -6,7 +6,7 @@ from pprint import pprint
 
 if __name__ == '__main__':
 	Db = Database()
-	tickers = Db.get_ticker_ids()
+	tickers = Db.get_ticker_ids_from_db()
 	total = tickers.count()
 	i = 0
 	for ticker in tickers:

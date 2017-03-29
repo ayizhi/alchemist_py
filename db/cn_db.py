@@ -67,12 +67,12 @@ class Database():
 
 
 	#获取 所有股票id，name，baseinfo
-	def get_ticker_ids(self):
+	def get_ticker_ids_from_db(self):
 		collection = self.db.symbol
 		return collection.find()
 
 	#读取一只股票的所有信息
-	def get_ticker_data_by_id(self,ticker_id,start='',end=datetime.date.today()):
+	def get_ticker_data_by_id_from_db(self,ticker_id,start='',end=datetime.date.today()):
 		collection = self.db.daily_price
 		end = end.strftime('%Y-%m-%d')
 		try:
