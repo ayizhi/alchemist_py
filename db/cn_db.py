@@ -101,6 +101,11 @@ class Database():
 			startDate = datetime.datetime.strptime(markDate,'%Y-%m-%d') + datetime.timedelta(days = -1 * day_range)
 			endDate = markDate
 		try:
-			collection.find({'code': ticker_id, 'date': {'$lt': endDate, '$gte':startDate}})
-
+			ticker_list = collection.find({'code': ticker_id, 'date': {'$lt': endDate, '$gte':startDate}})
+			print ticker_list.count()
+		except:
+			f = open('error.txt','w')
+			f.write(ticker_id)
+			f.write(',\\')
+			f.close()
 
