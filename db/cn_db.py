@@ -74,7 +74,9 @@ class Database():
 	#读取一只股票的所有信息
 	def get_ticker_data_by_id_from_db(self,ticker_id,start='',end=datetime.date.today()):
 		collection = self.db.daily_price
-		end = end.strftime('%Y-%m-%d')
+		if type(end) == datetime.datetime or type(end) == datetime.date :
+			end = end.strftime('%Y-%m-%d')
+
 		try:
 			date_range = {'$lt': end}
 			if start != '':
@@ -87,3 +89,18 @@ class Database():
 			f.write(ticker_id)
 			f.write(',\\')
 			f.close()
+
+	#获取一只股票的volume
+	def get_average_volume_by_id(ticker_id,day_range,markDate=datetime.date.today()):
+		collection = self.db.daily_price
+		#可传字符串，可传datetime对象
+		if type(markDate) == datetime.datetime or type(markDate) == datetime.date :
+			startDate = markDate + datetime.timedelta(days = -1 * day_range)
+			endDate = markDate.strftime('%Y-%m-%d')
+		elif type(markDate) == str:
+			startDate = datetime.datetime.strptime(markDate,'%Y-%m-%d') + datetime.timedelta(days = -1 * day_range)
+			endDate = markDate
+		try:
+			collection.find({'code': ticker_id, 'date': {'$lt': endDate, '$gte':startDate}})
+
+
