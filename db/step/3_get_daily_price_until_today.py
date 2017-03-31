@@ -1,4 +1,4 @@
-#coding: utf-8
+# -*- coding:utf-8 -*- 
 import sys
 sys.path.append('..')
 from cn_db import Database
@@ -12,7 +12,6 @@ if __name__ == '__main__':
 	for ticker in tickers:
 		i = i + 1
 		print  i,total
-
 		ticker_id = ticker['code']
 		ticker_name = ticker['name']
 		print ticker_id,ticker_name,'-----'

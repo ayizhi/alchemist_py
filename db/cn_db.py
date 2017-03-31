@@ -91,7 +91,7 @@ class Database():
 			f.close()
 
 	#获取一只股票的volume
-	def get_average_volume_by_id(ticker_id,day_range,markDate=datetime.date.today()):
+	def get_average_volume_by_id(self,ticker_id,day_range,markDate=datetime.date.today()):
 		collection = self.db.daily_price
 		#可传字符串，可传datetime对象
 		if type(markDate) == datetime.datetime or type(markDate) == datetime.date :
@@ -100,9 +100,12 @@ class Database():
 		elif type(markDate) == str:
 			startDate = datetime.datetime.strptime(markDate,'%Y-%m-%d') + datetime.timedelta(days = -1 * day_range)
 			endDate = markDate
+		print str(startDate) , str(endDate)
 		try:
-			ticker_list = collection.find({'code': ticker_id, 'date': {'$lt': endDate, '$gte':startDate}})
-			print ticker_list.count()
+			day_range = {'$gte': str(startDate), '$lt': str(endDate)}
+			ticker_data = collection.find({'code': ticker_id,'date': day_range})
+			print ticker_data.count()
+
 		except:
 			f = open('error.txt','w')
 			f.write(ticker_id)
