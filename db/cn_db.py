@@ -104,7 +104,9 @@ class Database():
 		try:
 			day_range = {'$gte': str(startDate), '$lt': str(endDate)}
 			ticker_data = collection.find({'code': ticker_id,'date': day_range})
-			print ticker_data.count()
+
+			ticker_df = pd.DataFrame(list(ticker_data))
+			return ticker_df['volume'].mean()
 
 		except:
 			f = open('error.txt','w')
