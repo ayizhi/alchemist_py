@@ -17,4 +17,5 @@ if __name__ == '__main__':
 		print ticker_id,ticker_name
 		Db.get_average_volume_by_id(ticker_id,15)
 		if i > 100 :
+
 			break
