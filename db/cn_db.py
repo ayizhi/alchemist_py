@@ -100,10 +100,9 @@ class Database():
 		elif type(markDate) == str:
 			startDate = datetime.datetime.strptime(markDate,'%Y-%m-%d') + datetime.timedelta(days = -1 * day_range)
 			endDate = markDate
-		print str(startDate) , str(endDate)
 		try:
 			day_range = {'$gte': str(startDate), '$lt': str(endDate)}
-			ticker_data = collection.find({'code': ticker_id,'date': day_range})
+			ticker_data = collection.find({'code': ticker_id,'date': day_range}).explain()
 
 			ticker_df = pd.DataFrame(list(ticker_data))
 			return ticker_df['volume'].mean()
