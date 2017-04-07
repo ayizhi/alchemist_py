@@ -102,8 +102,7 @@ class Database():
 			endDate = markDate
 		try:
 			day_range = {'$gte': str(startDate), '$lt': str(endDate)}
-			ticker_data = collection.find({'code': ticker_id,'date': day_range}).explain()
-
+			ticker_data = collection.find({'code': ticker_id,'date': day_range})
 			ticker_df = pd.DataFrame(list(ticker_data))
 			return ticker_df['volume'].mean()
 
