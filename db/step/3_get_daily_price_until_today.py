@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*- 
 import sys
 sys.path.append('..')
+print sys.path
 from cn_db import Database
 from pprint import pprint
 
