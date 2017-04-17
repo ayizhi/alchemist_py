@@ -36,8 +36,8 @@ class Database():
 			collection.insert(ticker_json)
 			print 'insert success ==========================='
 		except:#如果获取失败
-			f.truncate()  
-			f.write(ticker_id)  
+			f.truncate()
+			f.write(ticker_id)
 		f.close()
 
 	#存入，从数据库里的最后一天到今天
