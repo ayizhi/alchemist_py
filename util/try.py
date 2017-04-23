@@ -1,14 +1,30 @@
-import Queue as queue
-import pprint
+#! python3
+#coding: utf-8
+import sys
+sys.path.append('..')
+from db.cn_db import Database
+import PySide
+from pprint import pprint
+import pyqtgraph as pg
+import pandas as pd
+import numpy as np
 
-q = queue.Queue()
+if __name__ == '__main__':
+    db = Database()
+    symbol_list = ['600533']
+    for tickerId in symbol_list:
+        data = db.get_ticker_data_by_id_from_db(tickerId)
+        close = np.array(data['close'])
+        date = np.array(data['date'])
 
-q.put(11)
+        close.shape = (close.shape[0],1)
+        close = np.transpose(close)
 
-print q.get
+        print(close,close.shape)
+        
+        # pw = pg.plot(close,pen='r')
+        # win = pg.GraphicsWindow()
+        pg.show(close)
 
 
-symbol_list = [11,22,33,44,55,66]
-d = dict( (k,v) for k,v in  [(s,0) for s in symbol_list])
-d['datetime'] = '20120302'
-pprint.pprint(d)
+

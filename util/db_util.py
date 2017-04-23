@@ -27,7 +27,6 @@ class DbUtil(Database):
 		t66 = int(list_len * 0.6666666)
 
 		volume_list_middle_33 = np.sort(volume_list)[t33: t66]
-		print volume_list_middle_33
 		return volume_list_middle_33
 
 
