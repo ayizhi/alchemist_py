@@ -1,5 +1,5 @@
 #coding: utf-8
-print '================== may the force be with you ================='
+print ('================== may the force be with you =================')
 import pymongo
 from pprint import pprint
 from pymongo import MongoClient
@@ -29,15 +29,15 @@ class Database():
 
 		try:
 			ticker_data = ts.get_k_data(ticker_id);
-			print ticker_data,'=============================='
+			print (ticker_data,'==============================')
 			now = datetime.date.today()
 			ticker_data['update_date'] = str(now)
 			ticker_json = json.loads(ticker_data.to_json(orient="records"))
 			collection.insert(ticker_json)
-			print 'insert success ==========================='
+			print ('insert success ===========================')
 		except:#如果获取失败
-			f.truncate()  
-			f.write(ticker_id)  
+			f.truncate()
+			f.write(ticker_id)
 		f.close()
 
 	#存入，从数据库里的最后一天到今天
@@ -55,12 +55,12 @@ class Database():
 			today = today.strftime("%Y-%m-%d")
 			print ('===========',begin_date,'=====',today,'============')
 			ticker_data = ts.get_k_data(ticker_id,start=begin_date,end=today,retry_count=10)
-			print ticker_data
+			print (ticker_data)
 			ticker_json = json.loads(ticker_data.to_json(orient="records"))
 			collection.insert(ticker_json)
-			print 'insert success ==========================='
+			print ('insert success ===========================')
 		except:
-			print 'data has problem'
+			print ('data has problem')
 			f.write(ticker_id)
 			f.write(',\\')
 		f.close()
@@ -82,9 +82,10 @@ class Database():
 			if start != '':
 				date_range['$gte'] = start
 			ticker_data = collection.find({'code': ticker_id,'date':date_range})
+			ticker_data = pd.DataFrame(list(ticker_data))
 			return ticker_data
 		except:
-			print 'get data by id has error'
+			print ('get data by id has error')
 			f = open('error.txt','w')
 			f.write(ticker_id)
 			f.write(',\\')

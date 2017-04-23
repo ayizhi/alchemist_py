@@ -11,11 +11,11 @@ if __name__ == '__main__':
 	i = 0
 	for ticker in tickers:
 		i = i + 1
-		print  i,total
+		print (i,total)
 
 		ticker_id = ticker['code']
 		ticker_name = ticker['name']
 		Db.save_data_into_db_by_id(ticker_id)
 
-		print ticker_id,ticker_name
+		print (ticker_id,ticker_name)
 

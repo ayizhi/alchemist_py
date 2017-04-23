@@ -15,7 +15,7 @@ class DbUtil(Database):
 		for i in range(len(ticker_list)):
 			pbar.update(i+1)
 			time.sleep(0.0001)
-			
+
 			ticker = ticker_list[i]
 			ticker_id = ticker['code']
 			ticker_name = ticker['name']
