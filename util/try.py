@@ -17,6 +17,8 @@ if __name__ == '__main__':
         close = np.array(data['close'])
         date = np.array(data['date'])
 
+        
+
         print(close,close.shape)
 
         pg.examples.run()

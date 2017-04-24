@@ -91,7 +91,7 @@ class Database():
 			f.write(',\\')
 			f.close()
 
-	#获取一只股票的volume
+	#获取一只股票的average volume
 	def get_average_volume_by_id(self,ticker_id,day_range,markDate=datetime.date.today()):
 		collection = self.db.daily_price
 		#可传字符串，可传datetime对象
