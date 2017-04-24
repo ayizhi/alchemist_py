@@ -3,7 +3,7 @@
 import sys
 sys.path.append('..')
 from db.cn_db import Database
-import PySide
+# import PySide
 from pprint import pprint
 import pyqtgraph as pg
 import pandas as pd
@@ -24,7 +24,9 @@ if __name__ == '__main__':
         
         # pw = pg.plot(close,pen='r')
         # win = pg.GraphicsWindow()
-        pg.show(close)
+        # pg.show(close)
+
+        pg.examples.run()
 
 
 
