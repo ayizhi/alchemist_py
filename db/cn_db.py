@@ -69,7 +69,7 @@ class Database():
 	#获取 所有股票id，name，baseinfo
 	def get_ticker_ids_from_db(self):
 		collection = self.db.symbol
-		return collection.find()
+		return pd.DataFrame(list(collection.find()))
 
 	#读取一只股票的所有信息
 	def get_ticker_data_by_id_from_db(self,ticker_id,start='',end=datetime.date.today()):
@@ -101,9 +101,13 @@ class Database():
 		elif type(markDate) == str:
 			startDate = datetime.datetime.strptime(markDate,'%Y-%m-%d') + datetime.timedelta(days = -1 * day_range)
 			endDate = markDate
+
+
 		try:
-			day_range = {'$gte': str(startDate), '$lt': str(endDate)}
-			ticker_data = collection.find({'code': ticker_id,'date': day_range})
+
+			day_range_condition = {'$gte': str(startDate), '$lt': str(endDate)}
+			print (11111,ticker_id,'2222',day_range_condition)
+			ticker_data = collection.find({'code': ticker_id,'date': day_range_condition})
 			ticker_df = pd.DataFrame(list(ticker_data))
 			return ticker_df['volume'].mean()
 
