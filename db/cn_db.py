@@ -77,6 +77,7 @@ class Database():
 		if type(end) == datetime.datetime or type(end) == datetime.date :
 			end = end.strftime('%Y-%m-%d')
 
+
 		try:
 			date_range = {'$lt': end}
 			if start != '':
@@ -106,7 +107,6 @@ class Database():
 		try:
 
 			day_range_condition = {'$gte': str(startDate), '$lt': str(endDate)}
-			print (11111,ticker_id,'2222',day_range_condition)
 			ticker_data = collection.find({'code': ticker_id,'date': day_range_condition})
 			ticker_df = pd.DataFrame(list(ticker_data))
 			return ticker_df['volume'].mean()
