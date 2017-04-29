@@ -31,7 +31,7 @@ class Database():
 			ticker_data = ts.get_k_data(ticker_id);
 			print (ticker_data,'==============================')
 			now = datetime.date.today()
-			ticker_data['update_date'] = str(now)
+			# ticker_data['update_date'] = str(now)
 			ticker_json = json.loads(ticker_data.to_json(orient="records"))
 			collection.insert(ticker_json)
 			print ('insert success ===========================')
@@ -76,6 +76,7 @@ class Database():
 		collection = self.db.daily_price
 		if type(end) == datetime.datetime or type(end) == datetime.date :
 			end = end.strftime('%Y-%m-%d')
+
 
 
 		try:
