@@ -9,7 +9,7 @@ from progressbar import *
 import pandas as pd
 import numpy as np
 
-class DbUtil(Database):
+class FeatureUtil(Database):
 	def get_middle_33_average_volume_tickers(self):
 		ticker_list = self.get_ticker_ids_from_db()
 		volume_list = np.array([])

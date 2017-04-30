@@ -8,7 +8,6 @@ sys.path.append('..')
 from abc import ABCMeta, abstractmethod
 
 from db.cn_db import Database
-from util.db_util import DbUtil
 from util.plot_util import PlotUtil
 
 
