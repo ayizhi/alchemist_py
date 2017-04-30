@@ -46,11 +46,3 @@ class DbUtil(Database):
 		sma.index = date
 		return sma
 
-
-
-
-dbUtil = DbUtil()
-
-sma = dbUtil.get_simple_moving_average('600533')
-
-print (sma)
