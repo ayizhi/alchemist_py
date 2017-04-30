@@ -84,14 +84,18 @@ class Database():
 			if start != '':
 				date_range['$gte'] = start
 			ticker_data = collection.find({'code': ticker_id,'date':date_range})
-			ticker_data = pd.DataFrame(list(ticker_data))
-			return ticker_data
+			# ticker_data = pd.DataFrame(list(ticker_data))
 		except:
 			print ('get data by id has error')
 			f = open('error.txt','w')
 			f.write(ticker_id)
 			f.write(',\\')
 			f.close()
+		else:
+			ticker_data = pd.DataFrame(list(ticker_data))
+			ticker_data.index = ticker_data['date']
+			return ticker_data
+
 
 	#获取一只股票的average volume
 	def get_average_volume_by_id(self,ticker_id,day_range,markDate=datetime.date.today()):

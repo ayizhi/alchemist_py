@@ -30,11 +30,11 @@ class DataHandler(object):
 		raise NotImplementedError("should implement get_latest_bar_datetime()")
 
 	@abstractmethod
-	def get_latest_bar_value(self,symbol,val_type):
+	def get_latest_bar_value(self,symbol,key_val):
 		raise NotImplementedError("should implement get_latest_bar_value()")
 
 	@abstractmethod
-	def get_latest_bars_values(self,symbol,val_type,N=1):
+	def get_latest_bars_values(self,symbol,key_val,N=1):
 		raise NotImplementedError("should implement get_latest_bars_values()")
 
 	@abstractmethod
@@ -44,38 +44,99 @@ class DataHandler(object):
 
 
 
-class DBHandler(DataHandler):
+class historicalDbDataHandler(DataHandler):
 
 	def __init__(self,events,symbol_list):
+		self.events = events
 		self.symbol_list = symbol_list
 
 		self.symbol_data = {}
 		self.latest_symbol_data = {}
-		self.continue_backtest = True
 		self.bar_index = 0
 		self.db = Database()
+		self.continue_backtest = True
 
-	def get_symbol_data(self):
+		self.get_symbol_data_init()
+
+	def get_symbol_data_init(self):
 		comb_index = None
-		for symbol_id in self.symbol_list:
-			self.symbol_data[symbol_id] = db.get_ticker_data_by_id_from_db(symbol_id)[['date','open','high','low','close','volume']]
+		for s in self.symbol_list:
+			self.symbol_data[s] = db.get_ticker_data_by_id_from_db(s)[['date','open','high','low','close','volume']]
 
 			if comb_index is None:
-				comb_index = self.symbol_data[symbol_id].index
+				comb_index = self.symbol_data[s].index
 			else:
-				comb_index.union(self.symbol_data[symbol_id].index)
+				comb_index.union(self.symbol_data[s].index)
 
-			self.latest_symbol_data[symbol_id] = []
+			self.latest_symbol_data[s] = []
 
 		#reindex the df with comb_index
-		for symbol_id in self.symbol_list:
-			self.symbol_data[symbol_id] = self.symbol_data[symbol_id].reindex(index=comb_index,method="pad").iterrows()
+		for s in self.symbol_list:
+			self.symbol_data[s] = self.symbol_data[s].reindex(index=comb_index,method="pad").iterrows()
+
+	def _get_new_bar(self,symbol):
+		for d in self.symbol_data[symbol]:
+			yield d
+
+	def get_latest_bar(self,symbol):
+		try:
+			bars_list = self.latest_symbol_data[symbol]
+		except KeyError:
+			print("That symbol is not available in the historical data set.")
+			raise
+		else:
+			return bars_list[-1]
+
+	def get_latest_bars(self,symbol,N=1):
+		try:
+			bars_list = self.latest_symbol_data[symbol]
+		except KeyError:
+			print("That symbol is not available in the historical data set.")
+			raise
+		else:
+			return bars_list[-N:]
+
+	def get_latest_bar_datetime(self,symbol):
+		try:
+			bars_list = self.latest_symbol_data[symbol]
+		except KeyError:
+			print("That symbol is not available in the historical data set.")
+			raise
+		else:
+			return bars_list[-1][0]
+
+	def get_latest_bar_value(self,symbol,key_val):
+		try:
+			bars_list = self.latest_symbol_data[symbol]
+		except KeyError:
+			print("That symbol is not available in the historical data set.")
+		else:
+			return getattr(bars_list[-1][1],key_val)
+
+	def get_latest_bars_values(self,symbol,key_val,N=1):
+		try:
+			bars_list = self.get_latest_bars(symbol,N)
+		except KeyError:
+			print("That symbol is not available in the historical data set.")
+		else:
+			return np.array([getattr(b[1],key_val) for b in bars_list])
+
+	def update_bars(self):
+		for s in self.symbol_list:
+			try:
+				bar = next(self._get_new_bar(s))
+			except StopIteration:
+				self.continue_backtest = False
+			else:
+				if bar is not None:
+					self.latest_symbol_data[s].append(bar)
+		self.events.put(MarketEvent())
 
 
+# db = Database()
 
-db = Database()
-
-symbol_list = ['600533','603050']
-dbhandler = DBHandler('daily_price',symbol_list)
-dbhandler.get_symbol_data()
+# symbol_list = ['600533','603050']
+# dbhandler = historicalDbDataHandler('daily_price',symbol_list)
+# dbhandler.update_bars()
+# dbhandler.get_latest_bar_value('600533','close')
 
