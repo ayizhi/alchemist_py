@@ -19,6 +19,6 @@ def create_drawdowns(pnl):
     for i in range(1,len(idx)):
         hwm.append(max(hwm[i - 1],pnl[i]))
         drawdown[i] = (hwm[i] - pnl[i])
-        duration[i] = (0 if drawdown[t] == 0 else duration[i - 1] + 1)
+        duration[i] = (0 if drawdown[i] == 0 else duration[i - 1] + 1)
     return drawdown,drawdown.max(),duration.max()
 

@@ -13,7 +13,7 @@ from portfolio import Portfolio
 from strategy import Strategy
 
 class MovingAverageCrossStrategy(Strategy):
-    def __init__(self,bars,events,short_window=100,long_window=100):
+    def __init__(self,bars,events,short_window=25,long_window=100):
         self.bars = bars
         self.symbol_list = self.bars.symbol_list
         self.events = events
@@ -33,12 +33,12 @@ class MovingAverageCrossStrategy(Strategy):
             for symbol in self.symbol_list:
                 bars = self.bars.get_latest_bars_values(symbol, 'close', N=self.long_window)
 
-                print(bars,'====================================')
+                print('bars:  ',bars,'====================================')
                 if bars is not None and bars != []:
                     short_sma = np.mean(bars[-self.short_window:])
                     long_sma = np.mean(bars[-self.long_window:])
 
-                    dt = self.bars.get_latest_bars_datetime(symbol)
+                    dt = self.bars.get_latest_bar_datetime(symbol)
                     print ('dt',dt,'====================================')
 
                     sig_dir = ""

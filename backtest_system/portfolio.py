@@ -23,10 +23,9 @@ class Portfolio(object):
         self.initial_capital = initial_capital
 
         self.all_positions = self.construct_all_positions()
-
         self.current_positions = dict((k,v) for k,v in [(s,0) for s in self.symbol_list])
-
-        self.all_holdings = self.construct_current_holdings()
+        self.all_holdings = self.construct_all_holdings()
+        self.current_holdings = self.construct_current_holdings()
 
     def construct_all_positions(self):
         d = dict((k,v) for k,v in [(s,0) for s in self.symbol_list])
@@ -143,14 +142,13 @@ class Portfolio(object):
 
         curve.set_index('datetime',inplace=True)
         curve['returns'] = curve['total'].pct_change()
-        curve['equity_curve'] = (1.0 + curve['return']).cumprod()
+        curve['equity_curve'] = (1.0 + curve['returns']).cumprod()
         self.equity_curve = curve
 
 
     def output_summary_stats(self):
         total_return = self.equity_curve['equity_curve'][-1]
-        returns = self.equity_curve[
-        'returns']
+        returns = self.equity_curve['returns']
         pnl = self.equity_curve['equity_curve']
 
 

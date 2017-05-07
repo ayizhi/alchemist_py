@@ -61,7 +61,7 @@ class HistoricalDbDataHandler(DataHandler):
 	def get_symbol_data_init(self):
 		comb_index = None
 		for s in self.symbol_list:
-			self.symbol_data[s] = self.db.get_ticker_data_by_id_from_db(s)[['date','open','high','low','close','volume']]
+			self.symbol_data[s] = self.db.get_ticker_data_by_id_from_db(s)[['date','open','high','low','close','volume']].fillna(method='ffill').fillna(method="pad")
 
 			if comb_index is None:
 				comb_index = self.symbol_data[s].index

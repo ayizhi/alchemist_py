@@ -32,7 +32,7 @@ class OrderEvent(Event):
 		print ("Order: Symbol=%s, Type=%s, Quantity=%s,Direction=%s") % (self.symbol,self.order_type,self.quantity,self.direction)
 
 class FillEvent(Event):
-    def __init__(self,timeindex,symbol,exchange,quantity,direction,fill_cost,commisson=None):
+    def __init__(self,timeindex,symbol,exchange,quantity,direction,fill_cost,commission=None):
         """
         Parameters:
             timeindex - The bar-resolution when the order was filled.
@@ -52,10 +52,10 @@ class FillEvent(Event):
         self.fill_cost = fill_cost
 
         #calculate the commission
-        if commisson is None:
-          self.commisson = self.calculate_ib_commission()
+        if commission is None:
+          self.commission = self.calculate_ib_commission()
         else:
-          self.commisson = commisson
+          self.commission = commission
 
     def calculate_ib_commission(self):
         full_cost = 1.3
