@@ -13,7 +13,7 @@ import pandas as pd
 from event import FillEvent,OrderEvent
 from performance import create_sharpe_ratio, create_drawdowns
 
-class Protfolio(object):
+class Portfolio(object):
     def __init__(self,bars,events,start_date,initial_capital=100000.0):
         #datahandler
         self.bars = bars

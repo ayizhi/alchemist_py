@@ -9,6 +9,7 @@ from abc import ABCMeta, abstractmethod
 
 from db.cn_db import Database
 from util.plot_util import PlotUtil
+from event import MarketEvent
 
 
 
@@ -43,7 +44,7 @@ class DataHandler(object):
 
 
 
-class historicalDbDataHandler(DataHandler):
+class HistoricalDbDataHandler(DataHandler):
 
 	def __init__(self,events,symbol_list):
 		self.events = events
@@ -60,7 +61,7 @@ class historicalDbDataHandler(DataHandler):
 	def get_symbol_data_init(self):
 		comb_index = None
 		for s in self.symbol_list:
-			self.symbol_data[s] = db.get_ticker_data_by_id_from_db(s)[['date','open','high','low','close','volume']]
+			self.symbol_data[s] = self.db.get_ticker_data_by_id_from_db(s)[['date','open','high','low','close','volume']]
 
 			if comb_index is None:
 				comb_index = self.symbol_data[s].index
@@ -132,10 +133,4 @@ class historicalDbDataHandler(DataHandler):
 		self.events.put(MarketEvent())
 
 
-# db = Database()
-
-# symbol_list = ['600533','603050']
-# dbhandler = historicalDbDataHandler('daily_price',symbol_list)
-# dbhandler.update_bars()
-# dbhandler.get_latest_bar_value('600533','close')
 
