@@ -12,6 +12,10 @@ import pandas as pd
 
 from event import FillEvent,OrderEvent
 from performance import create_sharpe_ratio, create_drawdowns
+import matplotlib.pyplot as plot
+import pyqtgraph as pg
+import pyqtgraph.examples
+
 
 class Portfolio(object):
     def __init__(self,bars,events,start_date,initial_capital=100000.0):
@@ -151,8 +155,6 @@ class Portfolio(object):
         returns = self.equity_curve['returns']
         pnl = self.equity_curve['equity_curve']
 
-
-        print('total_return,returns,pnl:',total_return,returns,pnl,'~~~~~~~~~')
 
         sharpe_ratio = create_sharpe_ratio(returns,periods = 252 * 60 * 6.5)
 
