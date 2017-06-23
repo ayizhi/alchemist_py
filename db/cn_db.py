@@ -8,20 +8,13 @@ import json
 import pandas as pd
 import numpy as np
 import datetime
-from abc import ABCMeta, abstractmethod
-
-class Database(object):
-    __metaclass__ = ABCMeta
-
-    @abstractmethod
-    def save_ticker_names_into_db(self):
-    	raise NotImplementedError('should implement save_ticker_names_into_db')
-    @abstractmethod
-    def get_ticker_ids_from_db(self):
+from db import Database as Database
 
 
-class Cn_Database(Database):
+#database functions for Chinese stock
+class CN_Database(Database):
 	def __init__(self):
+		print (self)
 		self.client = MongoClient('localhost',27017);
 		self.db = self.client.ticker_master
 
@@ -36,7 +29,7 @@ class Cn_Database(Database):
 	#存入，根据股票id获取股票数据放入db
 	def save_data_into_db_by_id(self,ticker_id):
 		collection = self.db.daily_price
-		f = open('error.txt','w')
+		f = open('./error/log.txt','w')
 
 		try:
 			ticker_data = ts.get_k_data(ticker_id);
@@ -92,7 +85,6 @@ class Cn_Database(Database):
 			if start != '':
 				date_range['$gte'] = start
 			ticker_data = collection.find({'code': ticker_id,'date':date_range})
-			# ticker_data = pd.DataFrame(list(ticker_data))
 		except:
 			print ('get data by id has error')
 			f = open('error.txt','w')
