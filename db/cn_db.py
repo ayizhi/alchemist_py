@@ -8,8 +8,19 @@ import json
 import pandas as pd
 import numpy as np
 import datetime
+from abc import ABCMeta, abstractmethod
 
-class Database():
+class Database(object):
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def save_ticker_names_into_db(self):
+    	raise NotImplementedError('should implement save_ticker_names_into_db')
+    @abstractmethod
+    def get_ticker_ids_from_db(self):
+
+
+class Cn_Database(Database):
 	def __init__(self):
 		self.client = MongoClient('localhost',27017);
 		self.db = self.client.ticker_master
@@ -31,7 +42,6 @@ class Database():
 			ticker_data = ts.get_k_data(ticker_id);
 			print (ticker_data,'==============================')
 			now = datetime.date.today()
-			# ticker_data['update_date'] = str(now)
 			ticker_json = json.loads(ticker_data.to_json(orient="records"))
 			collection.insert(ticker_json)
 			print ('insert success ===========================')
@@ -76,8 +86,6 @@ class Database():
 		collection = self.db.daily_price
 		if type(end) == datetime.datetime or type(end) == datetime.date :
 			end = end.strftime('%Y-%m-%d')
-
-
 
 		try:
 			date_range = {'$lt': end}
