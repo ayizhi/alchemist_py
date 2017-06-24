@@ -27,8 +27,9 @@ class US_Database(Database):
         collection.insert_many(ticker_json)
         print('save data success!')
 
+    #get all data
+    def download_all_data_until_today():
+        
 
 
-date = datetime.date.today() + datetime.timedelta(days = 3 * -1)
-data = US_Database().download_us_ticker_from_quandl_by_date(date)
-US_Database().save_data_into_db(data)
+
