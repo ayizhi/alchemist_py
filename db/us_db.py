@@ -86,6 +86,7 @@ class US_Database(Database):
         self.symbol_collection.insert_many(tickers_json)
         print ('save into db success!')
 
+    #get ticker by id
     def get_ticker_by_id(self,ticker_id,start_date=datetime.datetime(2016,5,1),end_date=datetime.datetime.today()):
         start_date = start_date.strftime('%Y-%m-%d')
         end_date = end_date.strftime('%Y-%m-%d')
@@ -95,14 +96,35 @@ class US_Database(Database):
         return ticker_data_df
 
 
+    #get 33%-66% volume by day range
+    def get_33_66_volume_by_day_range(self,days):
+        end_date = datetime.datetime.today().strftime('%Y-%m-%d')
+        start_date = (datetime.datetime.today() + datetime.timedelta(days = -1 * days)).strftime('%Y-%m-%d')
+        date_range = {'$gte': start_date,'$lt': end_date}
+        date_range_df = pd.date_range(start=start_date,end=end_date)
+        ticker_data = self.daily_price_collection.find({'date': date_range})
+        ticker_data_df = pd.DataFrame(list(ticker_data))
+        #set val for content to fill volume
+        all_volume_df = pd.DataFrame(columns=['volume'])
+        for date in date_range_df:
+            date = date.strftime('%Y-%m-%d')
+            df_by_date = ticker_data_df[ticker_data_df['date'] == date][['ticker','date','volume']]
+            df_by_date = df_by_date.reset_index().fillna(method='ffill')
+            df_by_date = df_by_date.set_index(df_by_date['ticker'])
+            if df_by_date.shape[0] == 0:
+                continue
+            all_volume_df['volume'] = df_by_date['volume'] if all_volume_df.empty else all_volume_df['volume'] + df_by_date['volume']
+            all_volume_df = all_volume_df.fillna(method='ffill')
+        #sort
+        all_volume_df = all_volume_df.sort(['volume'])
+        #cut
+        cut_start = int(all_volume_df.shape[0] * 0.33)
+        cut_end = int(all_volume_df.shape[0] * 0.66)
+        filter_symbol_list = all_volume_df[cut_start:cut_end].index
+        return filter_symbol_list
 
 
 
-
-
-
-usDb = US_Database()
-data = usDb.get_ticker_by_id("A")
-print(data)
-
+if __name__ == '__main__':
+    db = US_Database()
 
