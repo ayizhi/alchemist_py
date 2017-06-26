@@ -26,7 +26,7 @@ class US_Database(Database):
         #if the date has already exist, return
         dateList = list(self.daily_price_collection.find({'date': dateStr}))
         if len(dateList) != 0:
-            return
+            return pd.DataFrame()
         print('downloading the ticker data of %s ...' % date )
         try:
             data_df = pd.DataFrame(quandl.get_table('WIKI/PRICES', date = dateStr))
@@ -66,16 +66,34 @@ class US_Database(Database):
         for index in range(len(date_list)):
             date = date_list[index]
             ticker_data = self.download_us_ticker_from_quandl_by_date(date)
+            print (ticker_data)
             if(ticker_data.shape[0] == 0):
                 continue
             self.save_data_into_db(ticker_data)
+
+    #get symbol id from db
+    def get_all_symbol_from_db(self):
+        date = datetime.datetime(2016,6,23).strftime('%Y-%m-%d')
+        ticker_data_by_date = pd.DataFrame(list(self.daily_price_collection.find({'date': date})))
+        return ticker_data_by_date['ticker']
+
+    #save ticker id into symbol
+    def save_ticker_into_symboL(self):
+        tickers = pd.DataFrame(self.get_all_symbol_from_db())
+        tickers_json = json.loads(tickers.to_json(orient='records'))
+        #delete first
+        self.symbol_collection.delete_many({})
+        self.symbol_collection.insert_many(tickers_json)
+        print ('save into db success!')
+
+
 
 
 
 
 
 usDb = US_Database()
-usDb.download_all_data_until_today()
+usDb.save_ticker_into_symboL()
 
 
 
