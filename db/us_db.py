@@ -72,19 +72,28 @@ class US_Database(Database):
             self.save_data_into_db(ticker_data)
 
     #get symbol id from db
-    def get_all_symbol_from_db(self):
+    def get_symbol_from_db(self):
         date = datetime.datetime(2016,6,23).strftime('%Y-%m-%d')
         ticker_data_by_date = pd.DataFrame(list(self.daily_price_collection.find({'date': date})))
         return ticker_data_by_date['ticker']
 
     #save ticker id into symbol
-    def save_ticker_into_symboL(self):
+    def save_ticker_into_symbol(self):
         tickers = pd.DataFrame(self.get_all_symbol_from_db())
         tickers_json = json.loads(tickers.to_json(orient='records'))
         #delete first
         self.symbol_collection.delete_many({})
         self.symbol_collection.insert_many(tickers_json)
         print ('save into db success!')
+
+    def get_ticker_by_id(self,ticker_id,start_date=datetime.datetime(2016,5,1),end_date=datetime.datetime.today()):
+        start_date = start_date.strftime('%Y-%m-%d')
+        end_date = end_date.strftime('%Y-%m-%d')
+        date_range = {'$gte': start_date,'$lt': end_date}
+        ticker_data = self.daily_price_collection.find({'ticker': ticker_id,'date': date_range})
+        ticker_data_df = pd.DataFrame(list(ticker_data))
+        return ticker_data_df
+
 
 
 
@@ -93,7 +102,7 @@ class US_Database(Database):
 
 
 usDb = US_Database()
-usDb.save_ticker_into_symboL()
-
+data = usDb.get_ticker_by_id("A")
+print(data)
 
 
