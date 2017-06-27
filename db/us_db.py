@@ -96,8 +96,9 @@ class US_Database(Database):
         ticker_data = self.daily_price_collection.find({'ticker': ticker_id,'date': date_range})
         ticker_data_df = pd.DataFrame(list(ticker_data))
         ticker_data_df = ticker_data_df[['adj_close','adj_high','adj_low','adj_open','volume']].set_index(ticker_data_df['date'])
-
         return ticker_data_df
+
+
 
 
     #get 33%-66% volume by day range
@@ -134,15 +135,27 @@ class US_Database(Database):
         date_range = pd.date_range(start=start_date,end=end_date).strftime('%Y-%m-%d')
         #get ma
         ticker_data = self.get_ticker_by_id(ticker_id,start_date,end_date)
-        ticker_data = ticker_data.reindex(date_range).fillna(method="ffill")
-        ticker_data_ma = ticker_data['adj_close'].rolling(window=5,center=False).mean().dropna()
-
+        ticker_data = ticker_data.reindex(date_range).fillna(method="ffill").fillna(method='bfill')
+        ticker_data_ma = ticker_data['adj_close'].rolling(window=k_days,center=False).mean().dropna()
+        print(ticker_data,'++++++++++++++++++++',ticker_data_ma,'==================================')
         return ticker_data_ma
+
+    #get profit
+    def get_profit_by_days(self,ticker_id,days,target_date=datetime.datetime.today()):
+        end_date = target_date
+        start_date = (target_date + datetime.timedelta(days = - 1 * days))
+        date_range = pd.date_range(start=start_date,end=end_date).strftime('%Y-%m-%d')
+        #get ma
+        ticker_data = self.get_ticker_by_id(ticker_id,start_date,end_date)
+        ticker_data = ticker_data.reindex(date_range).fillna(method="ffill").fillna(method='bfill')
+        profit = ticker_data['adj_close'][-1] - ticker_data['adj_close'][0]
+        return profit
+
 
 
 
 if __name__ == '__main__':
     db = US_Database()
     # print(db.get_33_66_volume_by_day_symbol(10))
-    db.get_moving_average_price('A',10,5)
+    # db.get_moving_average_price('A',10,5)
 
