@@ -8,7 +8,7 @@ import json
 import pandas as pd
 import numpy as np
 import datetime
-from db import Database as Database
+from db_base import Database as Database
 
 
 #database functions for Chinese stock

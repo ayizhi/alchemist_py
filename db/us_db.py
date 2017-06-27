@@ -1,11 +1,13 @@
 print ('================== may the force be with you =================')
+import sys
+sys.path.append('./db/')
 import quandl
 import datetime
 import pandas as pd
 import json
 import pymongo
 from pymongo import MongoClient
-from db import Database as Database
+from db_base import Database as Database
 
 #us_stock
 class US_Database(Database):
@@ -93,11 +95,13 @@ class US_Database(Database):
         date_range = {'$gte': start_date,'$lt': end_date}
         ticker_data = self.daily_price_collection.find({'ticker': ticker_id,'date': date_range})
         ticker_data_df = pd.DataFrame(list(ticker_data))
+        ticker_data_df = ticker_data_df[['adj_close','adj_high','adj_low','adj_open','volume']].set_index(ticker_data_df['date'])
+
         return ticker_data_df
 
 
     #get 33%-66% volume by day range
-    def get_33_66_volume_by_day_range(self,days):
+    def get_33_66_volume_by_day_symbol(self,days):
         end_date = datetime.datetime.today().strftime('%Y-%m-%d')
         start_date = (datetime.datetime.today() + datetime.timedelta(days = -1 * days)).strftime('%Y-%m-%d')
         date_range = {'$gte': start_date,'$lt': end_date}
@@ -123,8 +127,22 @@ class US_Database(Database):
         filter_symbol_list = all_volume_df[cut_start:cut_end].index
         return filter_symbol_list
 
+    #get moving average price
+    def get_moving_average_price(self,ticker_id,target_days,k_days):
+        end_date = datetime.datetime.today()
+        start_date = (datetime.datetime.today() + datetime.timedelta(days = - 1 * (target_days + k_days)))
+        date_range = pd.date_range(start=start_date,end=end_date).strftime('%Y-%m-%d')
+        #get ma
+        ticker_data = self.get_ticker_by_id(ticker_id,start_date,end_date)
+        ticker_data = ticker_data.reindex(date_range).fillna(method="ffill")
+        ticker_data_ma = ticker_data['adj_close'].rolling(window=5,center=False).mean().dropna()
+
+        return ticker_data_ma
+
 
 
 if __name__ == '__main__':
     db = US_Database()
+    # print(db.get_33_66_volume_by_day_symbol(10))
+    db.get_moving_average_price('A',10,5)
 
