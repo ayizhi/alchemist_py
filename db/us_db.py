@@ -68,7 +68,6 @@ class US_Database(Database):
         for index in range(len(date_list)):
             date = date_list[index]
             ticker_data = self.download_us_ticker_from_quandl_by_date(date)
-            print (ticker_data)
             if(ticker_data.shape[0] == 0):
                 continue
             self.save_data_into_db(ticker_data)
@@ -95,8 +94,12 @@ class US_Database(Database):
         date_range = {'$gte': start_date,'$lt': end_date}
         ticker_data = self.daily_price_collection.find({'ticker': ticker_id,'date': date_range})
         ticker_data_df = pd.DataFrame(list(ticker_data))
-        ticker_data_df = ticker_data_df[['adj_close','adj_high','adj_low','adj_open','volume']].set_index(ticker_data_df['date'])
-        return ticker_data_df
+
+        if ticker_data_df.empty != True:
+            ticker_data_df = ticker_data_df[['adj_close','adj_high','adj_low','adj_open','volume']].set_index(ticker_data_df['date'])
+            return ticker_data_df
+        else:
+            return pd.DataFrame()
 
 
 
@@ -135,9 +138,12 @@ class US_Database(Database):
         date_range = pd.date_range(start=start_date,end=end_date).strftime('%Y-%m-%d')
         #get ma
         ticker_data = self.get_ticker_by_id(ticker_id,start_date,end_date)
+        if ticker_data.shape[0] == 0 :
+            return pd.DataFrame()
         ticker_data = ticker_data.reindex(date_range).fillna(method="ffill").fillna(method='bfill')
-        ticker_data_ma = ticker_data['adj_close'].rolling(window=k_days,center=False).mean().dropna()
-        print(ticker_data,'++++++++++++++++++++',ticker_data_ma,'==================================')
+        ticker_data_ma = pd.DataFrame(columns=['adj_close','volume'])
+        ticker_data_ma['adj_close'] = ticker_data['adj_close'].rolling(window=k_days,center=False).mean().dropna()
+        ticker_data_ma['volume'] = ticker_data['volume']
         return ticker_data_ma
 
     #get profit
@@ -148,6 +154,8 @@ class US_Database(Database):
         #get ma
         ticker_data = self.get_ticker_by_id(ticker_id,start_date,end_date)
         ticker_data = ticker_data.reindex(date_range).fillna(method="ffill").fillna(method='bfill')
+        if ticker_data.empty == True:
+            return 0
         profit = ticker_data['adj_close'][-1] - ticker_data['adj_close'][0]
         return profit
 

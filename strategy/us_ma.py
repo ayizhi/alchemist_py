@@ -25,18 +25,28 @@ class MA_strategy(Strategy):
             if ticker_data.empty == True or ticker_data.shape[0] == 0 :
                 continue
             #price between 5 ~ 25
-            price = ticker_data[-1]
+            price = ticker_data['adj_close'][-1]
+
+
             if price >= 5 and price <= 25:
                 #short < middle < short
-                short_k = self.db.get_moving_average_price(ticker,self.target_range,self.short_k_day)[-1]
-                middle_k = self.db.get_moving_average_price(ticker,self.target_range,self.middle_k_day)[-1]
-                long_k = self.db.get_moving_average_price(ticker,self.target_range,self.long_k_day)[-1]
+                short_k = self.db.get_moving_average_price(ticker,self.target_range,self.short_k_day)['adj_close'][-1]
+                middle_k = self.db.get_moving_average_price(ticker,self.target_range,self.middle_k_day)['adj_close'][-1]
+                long_k = self.db.get_moving_average_price(ticker,self.target_range,self.long_k_day)['adj_close'][-1]
                 profit_short_k = self.db.get_profit_by_days(ticker,self.short_k_day)
+                volume = ticker_data['volume'][-1]
+
+
+                print(short_k,middle_k,long_k,profit_short_k,volume)
                 #接下来还要从以下几点考虑
                 #成交量，20% － 50％，
                 #盈利前30％
                 if(short_k > middle_k) and (middle_k > long_k) and abs(middle_k - long_k) < 1:
-                    self.ticker_filter_result.append(ticker)
+                    self.ticker_filter_result.append({
+                        'ticker': ticker,
+                        'profit': profit_short_k,
+                        'volume': volume
+                        })
 
         print (self.ticker_filter_result)
 
