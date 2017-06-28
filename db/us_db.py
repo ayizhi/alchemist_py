@@ -101,9 +101,6 @@ class US_Database(Database):
         else:
             return pd.DataFrame()
 
-
-
-
     #get 33%-66% volume by day range
     def get_33_66_volume_by_day_symbol(self,days):
         end_date = datetime.datetime.today().strftime('%Y-%m-%d')

@@ -6,6 +6,8 @@ import numpy as np
 import pandas as pd
 import datetime
 from strategy_base import Strategy
+import sklearn
+from sklearn import linear_model
 
 class MA_strategy(Strategy):
     def __init__(self,tickers):
@@ -30,25 +32,43 @@ class MA_strategy(Strategy):
 
             if price >= 5 and price <= 25:
                 #short < middle < short
-                short_k = self.db.get_moving_average_price(ticker,self.target_range,self.short_k_day)['adj_close'][-1]
-                middle_k = self.db.get_moving_average_price(ticker,self.target_range,self.middle_k_day)['adj_close'][-1]
-                long_k = self.db.get_moving_average_price(ticker,self.target_range,self.long_k_day)['adj_close'][-1]
+                short_k = self.db.get_moving_average_price(ticker,self.target_range,self.short_k_day)['adj_close']
+                middle_k = self.db.get_moving_average_price(ticker,self.target_range,self.middle_k_day)['adj_close']
+                long_k = self.db.get_moving_average_price(ticker,self.target_range,self.long_k_day)['adj_close']
+
+                short_k_price = short_k[-1]
+                middle_k_price = middle_k[-1]
+                long_k_price = long_k[-1]
                 profit_short_k = self.db.get_profit_by_days(ticker,self.short_k_day)
                 volume = ticker_data['volume'][-1]
 
 
-                print(short_k,middle_k,long_k,profit_short_k,volume)
+                reg = linear_model.LinearRegression()
+                print (short_k)
+
+
                 #接下来还要从以下几点考虑
                 #成交量，20% － 50％，
-                #盈利前30％
-                if(short_k > middle_k) and (middle_k > long_k) and abs(middle_k - long_k) < 1:
+                #盈利前 10-30％
+                if(short_k_price > middle_k_price) and (middle_k_price > long_k_price) and abs(middle_k_price - long_k_price) < 1:
                     self.ticker_filter_result.append({
                         'ticker': ticker,
                         'profit': profit_short_k,
                         'volume': volume
                         })
 
-        print (self.ticker_filter_result)
+            break
+
+        #10% - 30% profit
+        self.ticker_filter_result = pd.DataFrame(self.ticker_filter_result).sort(['profit'])
+        shape = self.ticker_filter_result.shape[0]
+        self.ticker_filter_result = self.ticker_filter_result[int(shape * 0.7): int(shape * 0.9)].sort(['volume'])
+        #20%-50% volume
+        shape = self.ticker_filter_result.shape[0]
+        self.ticker_filter_result = self.ticker_filter_result[int(shape * 0.5): int(shape * 0.8)]
+
+        print(self.ticker_filter_result)
+
 
 
 
