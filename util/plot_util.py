@@ -23,11 +23,7 @@ class PlotUtil(object):
         pg.plot(np_normal,pen=(200,200,200), symbolBrush=(255,255,0), symbolPen='w')
         QtGui.QApplication.exec_()
 
-    def plot_k(self,np_normal,np_short,np_middle,np_long):
-        print (np_normal)
-        print (np_short)
-        print (np_middle)
-        print (np_long)
+    def plot_k(self,np_normal,np_short,np_middle,np_long,title):
         pg = self.win.addPlot(title="Multiple curves")
         pg.plot(np_normal, pen='w', name="normal")
         pg.plot(np_short, pen=(255,0,0), name="short")

@@ -163,4 +163,5 @@ if __name__ == '__main__':
     db = US_Database()
     # print(db.get_33_66_volume_by_day_symbol(10))
     # db.get_moving_average_price('A',10,5)
+    # db.download_all_data_until_today()
 

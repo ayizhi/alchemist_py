@@ -31,9 +31,10 @@ class MA_strategy(Strategy):
                 continue
             #price between 5 ~ 25
             price = ticker_data['adj_close'][-1]
+            profit_short_k = self.db.get_profit_by_days(ticker,self.short_k_day)
 
 
-            if price >= 5 and price <= 25:
+            if price >= 5 and price <= 25 and profit_short_k > 0:
                 #short < middle < short
                 short_k = self.db.get_moving_average_price(ticker,self.target_range,self.short_k_day)['adj_close']
                 middle_k = self.db.get_moving_average_price(ticker,self.target_range,self.middle_k_day)['adj_close']
@@ -42,9 +43,7 @@ class MA_strategy(Strategy):
                 short_k_price = short_k[-1]
                 middle_k_price = middle_k[-1]
                 long_k_price = long_k[-1]
-                profit_short_k = self.db.get_profit_by_days(ticker,self.short_k_day)
                 volume = ticker_data['volume'][-1]
-
 
                 #接下来还要从以下几点考虑
                 #成交量，20% － 50％，
@@ -73,10 +72,6 @@ class MA_strategy(Strategy):
                     long_k_intercept = reg.intercept_
 
                     if short_k_coef > middle_k_coef and middle_k_coef > long_k_coef:
-                        print('ticker',ticker,'===')
-                        plt = PlotUtil()
-                        plt.plot_k(np.array(ticker_data['adj_close']),np.array(short_k),np.array(middle_k),np.array(long_k))
-
                         self.ticker_filter_result.append({
                             'ticker': ticker,
                             'profit': profit_short_k,
@@ -85,17 +80,16 @@ class MA_strategy(Strategy):
 
 
 
-        #10% - 30% profit
+        ##10% - 60% profit
         self.ticker_filter_result = pd.DataFrame(self.ticker_filter_result).sort_values(by=['profit'])
-        print (self.ticker_filter_result)
 
-        shape = self.ticker_filter_result.shape[0]
-        self.ticker_filter_result = self.ticker_filter_result[int(shape * 0.7): int(shape * 0.9)].sort_values(by=['volume'])
-        #20%-50% volume
-        shape = self.ticker_filter_result.shape[0]
-        self.ticker_filter_result = self.ticker_filter_result[int(shape * 0.5): int(shape * 0.8)]
+        # shape = self.ticker_filter_result.shape[0]
+        # print (shape,'====')
+        # self.ticker_filter_result = self.ticker_filter_result[int(shape * 0.5): int(shape * 0.9)].sort_values(by=['volume'])
+        ##20%-50% volume
+        # shape = self.ticker_filter_result.shape[0]
+        # self.ticker_filter_result = self.ticker_filter_result[int(shape * 0.5): int(shape * 0.8)]
 
-        print(self.ticker_filter_result)
         return (self.ticker_filter_result)
 
 
@@ -103,10 +97,10 @@ class MA_strategy(Strategy):
 
 if __name__ == '__main__':
     db = US_Database()
-    plt = PlotUtil()
     symbols = db.get_33_66_volume_by_day_symbol(10)
     ma = MA_strategy(symbols)
     tickers = ma.filter_ticker()
+    print (tickers)
 
 
 
