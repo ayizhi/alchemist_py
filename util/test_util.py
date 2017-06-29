@@ -6,4 +6,4 @@ sys.path.append('../')
 from db.us_db import US_Database
 
 class Test_util(object):
-    def __init__(self,ticker,):
+    def __init__(self,ticker,target_date):

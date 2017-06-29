@@ -108,7 +108,6 @@ class CN_Database(Database):
 			startDate = datetime.datetime.strptime(markDate,'%Y-%m-%d') + datetime.timedelta(days = -1 * day_range)
 			endDate = markDate
 
-
 		try:
 
 			day_range_condition = {'$gte': str(startDate), '$lt': str(endDate)}
