@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 import pyqtgraph as pg
 import pyqtgraph.examples
+from pyqtgraph.Qt import QtGui
 
 
 class PlotUtil(object):
@@ -12,10 +13,31 @@ class PlotUtil(object):
         self.win = pg.GraphicsWindow()
         self.win.resize(1000,600)
 
+    def plot_line(self,np_normal):
+        pg = self.win.addPlot(title="plot a line")
+        pg.plot(np_normal,pen=(255,0,0))
+        QtGui.QApplication.exec_()
 
-    def plot(plot_list):
+    def plot_point(self,np_normal):
+        pg = self.win.addPlot(title="plot points")
+        pg.plot(np_normal,pen=(200,200,200), symbolBrush=(255,255,0), symbolPen='w')
+        QtGui.QApplication.exec_()
 
-        p2 = win.addPlot(title="Multiple curves")
-        p2.plot(np.random.normal(size=100), pen=(255,0,0), name="Red curve")
-        p2.plot(np.random.normal(size=110)+5, pen=(0,255,0), name="Green curve")
-        p2.plot(np.random.normal(size=120)+10, pen=(0,0,255), name="Blue curve")
+    def plot_k(self,np_normal,np_short,np_middle,np_long):
+        print (np_normal)
+        print (np_short)
+        print (np_middle)
+        print (np_long)
+        pg = self.win.addPlot(title="Multiple curves")
+        pg.plot(np_normal, pen='w', name="normal")
+        pg.plot(np_short, pen=(255,0,0), name="short")
+        pg.plot(np_middle,pen=(0,255,0), name="middle")
+        pg.plot(np_long,pen=(0,0,255),name="long")
+        QtGui.QApplication.exec_()
+
+
+
+# plt = PlotUtil()
+# plt.plot()
+
+# pyqtgraph.examples.run()

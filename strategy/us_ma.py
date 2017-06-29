@@ -8,6 +8,7 @@ import datetime
 from strategy_base import Strategy
 import sklearn
 from sklearn import linear_model
+from util.plot_util import PlotUtil
 
 import matplotlib.pyplot as plt
 
@@ -44,16 +45,6 @@ class MA_strategy(Strategy):
                 profit_short_k = self.db.get_profit_by_days(ticker,self.short_k_day)
                 volume = ticker_data['volume'][-1]
 
-                # Plot outputs
-                # plt.scatter(train_x, train_y,  color='black')
-                # plt.plot(train_x, reg.predict(train_x), color='blue',linewidth=3)
-
-                # plt.xticks(())
-                # plt.yticks(())
-
-                # plt.show()
-
-
 
                 #接下来还要从以下几点考虑
                 #成交量，20% － 50％，
@@ -82,6 +73,9 @@ class MA_strategy(Strategy):
                     long_k_intercept = reg.intercept_
 
                     if short_k_coef > middle_k_coef and middle_k_coef > long_k_coef:
+                        print('ticker',ticker,'===')
+                        plt = PlotUtil()
+                        plt.plot_k(np.array(ticker_data['adj_close']),np.array(short_k),np.array(middle_k),np.array(long_k))
 
                         self.ticker_filter_result.append({
                             'ticker': ticker,
@@ -102,12 +96,17 @@ class MA_strategy(Strategy):
         self.ticker_filter_result = self.ticker_filter_result[int(shape * 0.5): int(shape * 0.8)]
 
         print(self.ticker_filter_result)
+        return (self.ticker_filter_result)
 
 
 
 
 if __name__ == '__main__':
     db = US_Database()
+    plt = PlotUtil()
     symbols = db.get_33_66_volume_by_day_symbol(10)
     ma = MA_strategy(symbols)
     tickers = ma.filter_ticker()
+
+
+
