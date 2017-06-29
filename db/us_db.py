@@ -102,9 +102,9 @@ class US_Database(Database):
             return pd.DataFrame()
 
     #get 33%-66% volume by day range
-    def get_33_66_volume_by_day_symbol(self,days):
-        end_date = datetime.datetime.today().strftime('%Y-%m-%d')
-        start_date = (datetime.datetime.today() + datetime.timedelta(days = -1 * days)).strftime('%Y-%m-%d')
+    def get_33_66_volume_by_day_symbol(self,days,target_date=datetime.datetime.today()):
+        end_date = target_date.strftime('%Y-%m-%d')
+        start_date = (target_date + datetime.timedelta(days = -1 * days)).strftime('%Y-%m-%d')
         date_range = {'$gte': start_date,'$lt': end_date}
         date_range_df = pd.date_range(start=start_date,end=end_date)
         ticker_data = self.daily_price_collection.find({'date': date_range})
@@ -129,9 +129,9 @@ class US_Database(Database):
         return filter_symbol_list
 
     #get moving average price
-    def get_moving_average_price(self,ticker_id,target_days,k_days):
-        end_date = datetime.datetime.today()
-        start_date = (datetime.datetime.today() + datetime.timedelta(days = - 1 * (target_days + k_days)))
+    def get_moving_average_price(self,ticker_id,day_range,k_days,target_date=datetime.datetime.today()):
+        end_date = target_date
+        start_date = (target_date + datetime.timedelta(days = - 1 * (day_range + k_days)))
         date_range = pd.date_range(start=start_date,end=end_date).strftime('%Y-%m-%d')
         #get ma
         ticker_data = self.get_ticker_by_id(ticker_id,start_date,end_date)
