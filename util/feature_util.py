@@ -8,41 +8,99 @@ import time
 from progressbar import *
 import pandas as pd
 import numpy as np
+from sklearn.datasets import make_classification
+from sklearn.ensemble import ExtraTreesClassifier
 
-class FeatureUtil(Database):
-	def get_middle_33_average_volume_tickers(self):
-		ticker_list = self.get_ticker_ids_from_db()
-		volume_list = np.array([])
-		list_len = len(ticker_list)
 
-		print('is calculating average volume...')
+class FeatureUtil(object):
+		#CCI
+	def CCI(self,data,ndays):
+		TP = (data['high'] + data['low'] + data['close'])/3
+		CCI = pd.Series((TP - pd.rolling_mean(TP, ndays)) / (0.015 * pd.rolling_std(TP, ndays)),name='CCI')
+		data = data.join(CCI)
+		return data
 
-		pbar = ProgressBar(maxval=list_len).start()
-		for i in range(list_len):
-			pbar.update(i+1)
-			time.sleep(0.0001)
-			ticker = ticker_list.ix[i]
-			ticker_id = ticker['code']
-			ticker_name = ticker['name']
-			volume = self.get_average_volume_by_id(ticker_id,10)
-			if volume:
-				volume = int(volume)
-				volume_list = np.append(volume_list,volume)
-		pbar.finish()
+	#timeLag
+	def TL(self,data,ndays):
+		index = data.index
+		pH = data['high'].resample(str(ndays) + 'D').max().reindex(index).fillna(method='bfill')
+		pL = data['low'].resample(str(ndays) + 'D').max().reindex(index).fillna(method='bfill')
+		pO = data['open'] - data['open'].shift(1)
+		timeLag = pO/(pH - pL)
+		timeLag.name = 'TL'
+		data = data.join(timeLag)
+		return data
 
-		t33 = int(list_len * 0.3333333)
-		t66 = int(list_len * 0.6666666)
 
-		volume_list_middle_33 = np.sort(volume_list)[t33: t66]
+	#Ease of Movement
+	def EVM(self,data,ndays):
+		dm = ((data['high'] + data['low'])/2) - ((data['high'].shift(1) + data['low'].shift(1))/2)
+		br = (data['volume']/100000000)/((data['high'] - data['low']))
+		EVM = dm/br
+		EVM_MA = pd.Series(pd.rolling_mean(EVM,ndays),name='EVM')
+		data = data.join(EVM_MA)
+		return data
 
-		volume_range = (volume_list_middle_33[0],volume_list_middle_33[-1])
+	# Simple Moving Average
+	def SMA(self,data, ndays):
+		SMA = pd.Series(pd.rolling_mean(data['close'], ndays), name = 'SMA') 
+		data = data.join(SMA)
+		return data
 
-		return volume_range
+	# Exponentially-weighted Moving Average
+	def EWMA(self,data, ndays):
+		EMA = pd.Series(pd.ewma(data['close'], span = ndays, min_periods = ndays - 1), 
+		name = 'EWMA_' + str(ndays))
+		data = data.join(EMA)
+		return data
 
-	def get_simple_moving_average(self,ticker_id, nDays=5):
-		ticker_list = self.get_ticker_data_by_id_from_db(ticker_id)
-		date = np.array(ticker_list['date'])
-		sma = pd.Series(ticker_list['close']).rolling(window=nDays,center=False).mean()
-		sma.index = date
-		return sma
+
+	# Rate of Change (ROC)
+	def ROC(self,data,n):
+		N = data['close'].diff(n)
+		D = data['close'].shift(n)
+		ROC = pd.Series(N/D,name='Rate of Change')
+		data = data.join(ROC)
+		return data
+
+	# Force Index
+	def ForceIndex(self,data, ndays):
+		FI = pd.Series(data['close'].diff(ndays) * data['volume'], name = 'ForceIndex') 
+		data = data.join(FI)
+		return data
+
+	# Compute the Bollinger Bands
+	def BBANDS(self,data, ndays):
+		MA = pd.Series(pd.rolling_mean(data['close'], ndays))
+		SD = pd.Series(pd.rolling_std(data['close'], ndays))
+		b1 = MA + (2 * SD)
+		B1 = pd.Series(b1, name = 'Upper BollingerBand')
+		b2 = MA - (2 * SD)
+		B2 = pd.Series(b2, name = 'Lower BollingerBand')
+	 	data = data.join([B1,B2])
+	 	return data
+
+	 #find most important 10 feature
+	 def find_most_important_feature(data_x,data_y,feature_num,n_estimators,random_state=0):
+	 	#build a forest and compute the feature importance
+	 	forest = ExtraTreesClassifier(n_estimators=n,,=0)
+		forest.fit(X, y)
+		importances = forest.feature_importances_
+		std = np.std([tree.feature_importances_ for tree in forest.estimators_],axis=0)
+		indices = np.argsort(importances)[::-1]
+
+		#Print the feature ranking
+		print("Feature ranking:")
+
+		x_columns = X.columns
+		features = []
+		for f in range(X.shape[1]):
+			features.append(x_columns[int(indices[f])])
+			# print f,indices[f],x_columns[int(indices[f])],'===========', importances[indices[f]]
+		return features
+
+
+
+
+
 

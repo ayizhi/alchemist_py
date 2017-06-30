@@ -9,6 +9,7 @@ from strategy_base import Strategy
 import sklearn
 from sklearn import linear_model
 from util.plot_util import PlotUtil
+from util.test_util import Test_util
 
 import matplotlib.pyplot as plt
 
@@ -22,7 +23,7 @@ class MA_strategy(Strategy):
         self.tickers = tickers
         self.ticker_filter_result = [];
         # self.target_date = datetime.datetime.today() #策略的时间点
-        self.target_date = datetime.datetime(2017,5,1)
+        self.target_date = datetime.datetime(2017,4,1)
 
     def filter_ticker(self):
         print('is calculating ...')
@@ -86,7 +87,7 @@ class MA_strategy(Strategy):
         print(pd.DataFrame(self.ticker_filter_result))
         if (len(self.ticker_filter_result)) == 0:
             return pd.DataFrame()
-        
+
         ##10% - 60% profit
         self.ticker_filter_result = pd.DataFrame(self.ticker_filter_result).sort_values(by=['profit']).reset_index()
 
@@ -104,6 +105,7 @@ class MA_strategy(Strategy):
 
 if __name__ == '__main__':
     db = US_Database()
+    test = Test_util()
     symbols = db.get_33_66_volume_by_day_symbol(10)
     ma = MA_strategy(symbols)
     tickers = ma.filter_ticker()
@@ -112,30 +114,8 @@ if __name__ == '__main__':
         #接下来10天还能保持盈利的
         profit_list = []
         for ticker in tickers['ticker']:
-            target_date_60 = ma.target_date + datetime.timedelta(days=60)
-            profit_60 = db.get_profit_by_days(ticker,59,target_date_60)
-
-
-            target_date_20 = ma.target_date + datetime.timedelta(days=20)
-            profit_20 = db.get_profit_by_days(ticker,19,target_date_20)
-
-            target_date_10 = ma.target_date + datetime.timedelta(days=10)
-            profit_10 = db.get_profit_by_days(ticker,9,target_date_10)
-
-            target_date_6 = ma.target_date + datetime.timedelta(days=6)
-            profit_6 = db.get_profit_by_days(ticker,5,target_date_6)
-
-            target_date_3 = ma.target_date + datetime.timedelta(days=3)
-            profit_3 = db.get_profit_by_days(ticker,2,target_date_3)
-            profit_list.append({
-                'ticker': ticker,
-                'profit_60': profit_60,
-                'profit_20': profit_20,
-                'profit_10': profit_10,
-                'profit_6': profit_6,
-                'profit_3': profit_3,
-                })
-
+            profit_obj = test.test_profit_by_date(ticker, ma.target_date)
+            profit_list.append(profit_obj)
         profit_df = pd.DataFrame(profit_list)
         print (profit_df)
 
