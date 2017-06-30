@@ -96,7 +96,12 @@ class US_Database(Database):
         ticker_data_df = pd.DataFrame(list(ticker_data))
 
         if ticker_data_df.empty != True:
+            date_range = pd.date_range(start=start_date,end=end_date)
             ticker_data_df = ticker_data_df[['adj_close','adj_high','adj_low','adj_open','volume']].set_index(ticker_data_df['date'])
+            ticker_data_df = ticker_data_df.reindex(date_range.strftime('%Y-%m-%d')).fillna(method="ffill").fillna(method="bfill")
+            #index from str to datetime
+            ticker_data_df = ticker_data_df.set_index(date_range)
+            ticker_data_df.rename(columns={'adj_close': 'close','adj_high': 'high','adj_low': 'low','adj_open': 'open'},inplace=True)
             return ticker_data_df
         else:
             return pd.DataFrame()
@@ -132,14 +137,14 @@ class US_Database(Database):
     def get_moving_average_price(self,ticker_id,day_range,k_days,target_date=datetime.datetime.today()):
         end_date = target_date
         start_date = (target_date + datetime.timedelta(days = - 1 * (day_range + k_days)))
-        date_range = pd.date_range(start=start_date,end=end_date).strftime('%Y-%m-%d')
+        date_range = pd.date_range(start=start_date,end=end_date)
         #get ma
         ticker_data = self.get_ticker_by_id(ticker_id,start_date,end_date)
         if ticker_data.shape[0] == 0 :
             return pd.DataFrame()
         ticker_data = ticker_data.reindex(date_range).fillna(method="ffill").fillna(method='bfill')
-        ticker_data_ma = pd.DataFrame(columns=['adj_close','volume'])
-        ticker_data_ma['adj_close'] = ticker_data['adj_close'].rolling(window=k_days,center=False).mean().dropna()
+        ticker_data_ma = pd.DataFrame(columns=['close','volume'])
+        ticker_data_ma['close'] = ticker_data['close'].rolling(window=k_days,center=False).mean().dropna()
         ticker_data_ma['volume'] = ticker_data['volume']
         return ticker_data_ma
 
@@ -147,13 +152,13 @@ class US_Database(Database):
     def get_profit_by_days(self,ticker_id,days,target_date=datetime.datetime.today()):
         end_date = target_date
         start_date = (target_date + datetime.timedelta(days = - 1 * days))
-        date_range = pd.date_range(start=start_date,end=end_date).strftime('%Y-%m-%d')
+        date_range = pd.date_range(start=start_date,end=end_date)
         #get ma
         ticker_data = self.get_ticker_by_id(ticker_id,start_date,end_date)
         ticker_data = ticker_data.reindex(date_range).fillna(method="ffill").fillna(method='bfill')
         if ticker_data.empty == True:
             return 0
-        profit = ticker_data['adj_close'][-1] - ticker_data['adj_close'][0]
+        profit = ticker_data['close'][-1] - ticker_data['close'][0]
         return profit
 
 

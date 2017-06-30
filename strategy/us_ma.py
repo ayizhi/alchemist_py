@@ -33,15 +33,15 @@ class MA_strategy(Strategy):
             if ticker_data.empty == True or ticker_data.shape[0] == 0 :
                 continue
             #price between 5 ~ 25
-            price = ticker_data['adj_close'][-1]
+            price = ticker_data['close'][-1]
             profit_short_k = self.db.get_profit_by_days(ticker,self.short_k_day,self.target_date)
 
 
-            if price >= 5 and price <= 25 and profit_short_k > 0:
+            if price >= 15 and price <= 25 and profit_short_k > 0:
                 #short < middle < short
-                short_k = self.db.get_moving_average_price(ticker,self.target_range,self.short_k_day,self.target_date)['adj_close']
-                middle_k = self.db.get_moving_average_price(ticker,self.target_range,self.middle_k_day,self.target_date)['adj_close']
-                long_k = self.db.get_moving_average_price(ticker,self.target_range,self.long_k_day,self.target_date)['adj_close']
+                short_k = self.db.get_moving_average_price(ticker,self.target_range,self.short_k_day,self.target_date)['close']
+                middle_k = self.db.get_moving_average_price(ticker,self.target_range,self.middle_k_day,self.target_date)['close']
+                long_k = self.db.get_moving_average_price(ticker,self.target_range,self.long_k_day,self.target_date)['close']
 
                 short_k_price = short_k[-1]
                 middle_k_price = middle_k[-1]
