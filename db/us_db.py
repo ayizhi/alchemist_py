@@ -4,6 +4,7 @@ sys.path.append('./db/')
 import quandl
 import datetime
 import pandas as pd
+import numpy as np
 import json
 import pymongo
 from pymongo import MongoClient
@@ -46,7 +47,7 @@ class US_Database(Database):
 
     #get the lastest date , str to datetime
     def get_the_last_date_from_db(self):
-        dateList = list(self.daily_price_collection.find({'ticker': 'A'}).sort('date', pymongo.DESCENDING))
+        dateList = list(self.daily_price_collection.find({'ticker': 'A'}).sort_values(by=['date'], ascending=False))
         if len(dateList) == 0:
             return None
         last_date_str = dateList[0]['date']
@@ -126,7 +127,7 @@ class US_Database(Database):
             all_volume_df['volume'] = df_by_date['volume'] if all_volume_df.empty else all_volume_df['volume'] + df_by_date['volume']
             all_volume_df = all_volume_df.fillna(method='ffill')
         #sort
-        all_volume_df = all_volume_df.sort(['volume'])
+        all_volume_df = all_volume_df.sort_values(by=['volume'])
         #cut
         cut_start = int(all_volume_df.shape[0] * 0.33)
         cut_end = int(all_volume_df.shape[0] * 0.66)
@@ -156,15 +157,31 @@ class US_Database(Database):
         #get ma
         ticker_data = self.get_ticker_by_id(ticker_id,start_date,end_date)
         ticker_data = ticker_data.reindex(date_range).fillna(method="ffill").fillna(method='bfill')
-        if ticker_data.empty == True:
+        if ticker_data.empty:
             return 0
         profit = ticker_data['close'][-1] - ticker_data['close'][0]
         return profit
+
+    def get_max_profit_by_days(self,ticker_id,days,target_date=datetime.datetime.today()):
+        end_date = target_date
+        start_date = target_date - datetime.timedelta(days=days)
+        date_range = pd.date_range(start=start_date,end=end_date)
+        #get data
+        ticker_data = self.get_ticker_by_id(ticker_id,start_date,end_date)
+        ticker_data = ticker_data.reindex(date_range).fillna(method="ffill").fillna(method="bfill")
+        if ticker_data.empty:
+            return 0
+
+        # print ([tick?er_data.close[0]] * 10)
+        profit = ticker_data.close.as_matrix() - np.array([ticker_data.close[0]] * 10)
+        print(profit)
+
 
 
 
 
 if __name__ == '__main__':
     db = US_Database()
-    # db.download_all_data_until_today()
+    profit = db.get_max_profit_by_days('A',10,datetime.datetime(2017,5,1))
+    print (profit)
 

@@ -2,10 +2,8 @@
 #数据工具库
 import sys
 sys.path.append('../..')
-from db.cn_db import Database
 import numpy as np
 import time
-from progressbar import *
 import pandas as pd
 import numpy as np
 from sklearn.datasets import make_classification

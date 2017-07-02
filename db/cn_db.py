@@ -121,3 +121,4 @@ class CN_Database(Database):
 			f.write(',\\')
 			f.close()
 
+db = CN_Database()
