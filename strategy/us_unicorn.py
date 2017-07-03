@@ -43,8 +43,13 @@ class Unicon_strategy(Strategy):
                 continue
 
             profit = self.db.get_profit_by_days(ticker,self.profit_date_range,self.target_date + datetime.timedelta(days=self.profit_date_range))
+
+            if profit > 0:
+                data_Y.append(1)
+            else:
+                data_Y.append(-1)
+
             data_X.append(np.array(ticker_data['close']))
-            data_Y.append(profit)
 
 
         data_X = np.array(data_X)
@@ -55,15 +60,12 @@ class Unicon_strategy(Strategy):
     def get_r2(self,X,y):
         #normalize
         X = self.feature_util.normalize(X)
-        y = self.feature_util.normalize(y)
 
         print (X,y)
 
 
         train_x,test_x = cross_validation.train_test_split(X,test_size=0.3,random_state=0)
         train_y,test_y = cross_validation.train_test_split(y,test_size=0.3,random_state=0)
-
-        print(train_x.shape,train_y.shape,test_x.shape,test_y.shape)
 
         models = [
         ('LR',LinearRegression()),
@@ -107,29 +109,21 @@ class Unicon_strategy(Strategy):
             close_list.append(close)
 
             profit = self.db.get_profit_by_days(ticker,self.profit_date_range,self.forecast_date + datetime.timedelta(days=self.profit_date_range))
-            profit_list.append(profit)
+            if profit > 0:
+                profit_list.append(1)
+            else:
+                profit_list.append(-1)
 
         close_np = np.array(close_list)
         profit_np = np.array(profit_list)
 
         #normalize
         close_np = self.feature_util.normalize(close_np)
-        profit_np = self.feature_util.normalize(profit_np)
-
         predict_np = model.predict(np.array(close_list))
-
 
         print('r2 is: ', r2_score(predict_np,profit_np))
 
         df = pd.DataFrame({'predict': predict_np, 'profit': profit_np})
-
-        df.loc[df.predict > 0,'predict'] = 1
-        df.loc[df.predict < 0,'predict'] = -1
-
-        df.loc[df.profit > 0,'profit'] = 1
-        df.loc[df.profit < 0,'profit'] = -1
-
-        print('r2 -1/1 is: ', r2_score(df['predict'],df['profit']))
 
         return df
 
@@ -157,7 +151,4 @@ if __name__ == '__main__':
     #get score
     df = unicon.forecast(lm)
     print(df)
-    print('==============')
-    print('==============')
-    print('==============')
-    print(df.loc[(df.predict > 0 and df.profit > 0)])
+
