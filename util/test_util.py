@@ -13,15 +13,15 @@ class Test_util(object):
     def test_profit_by_date(self,ticker,date):
         target_date_10 = date + datetime.timedelta(days=10)
         profit_10 = self.db.get_profit_by_days(ticker,9,target_date_10)
-        profit_10_max = self.db.get_max_profit_by_days(ticker,9,target_date_10)
+        profit_10_max,profit_10_max_percent = self.db.get_max_profit_by_days(ticker,9,target_date_10)
 
         target_date_6 = date + datetime.timedelta(days=6)
         profit_6 = self.db.get_profit_by_days(ticker,5,target_date_6)
-        profit_6_max = self.db.get_max_profit_by_days(ticker,5,target_date_6)
+        profit_6_max,profit_6_max_percent = self.db.get_max_profit_by_days(ticker,5,target_date_6)
 
         target_date_3 = date + datetime.timedelta(days=4)
         profit_3 = self.db.get_profit_by_days(ticker,4,target_date_3)
-        profit_3_max = self.db.get_max_profit_by_days(ticker,4,target_date_3)
+        profit_3_max,profit_3_max_percent = self.db.get_max_profit_by_days(ticker,4,target_date_3)
 
 
         return {

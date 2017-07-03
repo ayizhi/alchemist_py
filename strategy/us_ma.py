@@ -8,7 +8,7 @@ import datetime
 from strategy_base import Strategy
 import sklearn
 from sklearn import linear_model
-from util.plot_util import PlotUtil
+from util.plot_util import Plot_util
 from util.test_util import Test_util
 
 import matplotlib.pyplot as plt
@@ -16,14 +16,14 @@ import matplotlib.pyplot as plt
 class MA_strategy(Strategy):
     def __init__(self,tickers):
         self.short_k_day = 5
-        self.middle_k_day = 10
-        self.long_k_day = 30
+        self.middle_k_day = 20
+        self.long_k_day = 40
         self.target_range = 20 #计算周期
         self.db = db
         self.tickers = tickers
         self.ticker_filter_result = [];
         # self.target_date = datetime.datetime.today() #策略的时间点
-        self.target_date = datetime.datetime(2017,6,4)
+        self.target_date = datetime.datetime(2017,7,1)
 
     def filter_ticker(self):
         print('is calculating ...')
@@ -34,7 +34,7 @@ class MA_strategy(Strategy):
                 continue
             #price between 5 ~ 25
             price = ticker_data['close'][-1]
-            profit_short_k = self.db.get_profit_by_days(ticker,self.short_k_day,self.target_date)
+            profit_short_k,profit_percent = self.db.get_profit_by_days(ticker,self.short_k_day,self.target_date)
 
 
             if price >= 15 and price <= 25 and profit_short_k > 0:

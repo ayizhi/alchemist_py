@@ -158,9 +158,10 @@ class US_Database(Database):
         ticker_data = self.get_ticker_by_id(ticker_id,start_date,end_date)
         ticker_data = ticker_data.reindex(date_range).fillna(method="ffill").fillna(method='bfill')
         if ticker_data.empty:
-            return 0
+            return 0,0
         profit = ticker_data['close'][-1] - ticker_data['close'][0]
-        return profit
+        profit_percent = profit / ticker_data['close'][0]
+        return profit,profit_percent
 
     def get_max_profit_by_days(self,ticker_id,days,target_date=datetime.datetime.today()):
         end_date = target_date
@@ -173,7 +174,8 @@ class US_Database(Database):
             return 0
 
         profit = ticker_data.close.as_matrix() - np.array([ticker_data.close[0]] * ticker_data.close.shape[0])
-        return profit.max()
+        profit_percent = profit / np.array([ticker_data.close[0]] * ticker_data.close.shape[0])
+        return profit.max(),profit_percent.max()
 
 
 

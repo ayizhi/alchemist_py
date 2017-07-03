@@ -41,14 +41,15 @@ class Unicon_strategy(Strategy):
 
             if ticker_data.empty :
                 continue
+            print(self.db.get_profit_by_days(ticker,self.profit_date_range,self.target_date + datetime.timedelta(days=self.profit_date_range)),'..................................')
+            profit,profit_percent = self.db.get_profit_by_days(ticker,self.profit_date_range,self.target_date + datetime.timedelta(days=self.profit_date_range))
 
-            profit = self.db.get_profit_by_days(ticker,self.profit_date_range,self.target_date + datetime.timedelta(days=self.profit_date_range))
+            # if profit > 0:
+            #     data_Y.append(1)
+            # else:
+            #     data_Y.append(-1)
 
-            if profit > 0:
-                data_Y.append(1)
-            else:
-                data_Y.append(-1)
-
+            data_Y.append(profit_percent)
             data_X.append(np.array(ticker_data['close']))
 
 
@@ -109,18 +110,20 @@ class Unicon_strategy(Strategy):
             close = ticker_data['close']
             close_list.append(close)
 
-            profit = self.db.get_profit_by_days(ticker,self.profit_date_range,self.forecast_date + datetime.timedelta(days=self.profit_date_range))
-            if profit > 0:
-                profit_list.append(1)
-            else:
-                profit_list.append(-1)
+            profit,profit_percent = self.db.get_profit_by_days(ticker,self.profit_date_range,self.forecast_date + datetime.timedelta(days=self.profit_date_range))
+            # if profit > 0:
+            #     profit_list.append(1)
+            # else:
+            #     profit_list.append(-1)
+            print(profit_percent,'~~~~')
+            profit_list.append(profit_percent)
 
         close_np = np.array(close_list)
         profit_np = np.array(profit_list)
 
         #normalize
         close_np = self.feature_util.normalize(close_np)
-        predict_np = model.predict(np.array(close_list))
+        # predict_np = model.predict(np.array(close_list))
 
         print('r2 is: ', r2_score(predict_np,profit_np))
 
