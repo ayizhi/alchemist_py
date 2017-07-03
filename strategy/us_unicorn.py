@@ -8,10 +8,12 @@ import sys
 sys.path.append('../')
 from db.us_db import US_Database
 from util.feature_util import Feature_util
+from Util.plot_util import Plot_util
 from sklearn.linear_model import Lasso,LinearRegression,Ridge,LassoLars
 from sklearn.metrics import r2_score
 from sklearn.ensemble import RandomForestRegressor
 from sklearn import cross_validation
+import sklearn.preprocessing as preprocessing
 
 
 
@@ -51,6 +53,16 @@ class Unicon_strategy(Strategy):
         return (data_X,data_Y)
 
     def get_r2(self,X,y):
+        #normalize
+        scaler = preprocessing.StandardScaler()
+        X_param = scaler.fit(X)
+        X = scaler.fit_transform(X,X_param)
+        y_param = scaler.fit(y)
+        y = scaler.fit_transform(y,y_param)
+
+        print (X,y)
+
+
         train_x,test_x = cross_validation.train_test_split(X,test_size=0.3,random_state=0)
         train_y,test_y = cross_validation.train_test_split(y,test_size=0.3,random_state=0)
 
@@ -130,11 +142,15 @@ class Unicon_strategy(Strategy):
 if __name__ == '__main__':
 
     unicon = Unicon_strategy()
+    plt = Plot_util()
     #get X,y
     X,y = unicon.pre_deal_data()
 
     #get the best model
     lm = unicon.get_r2(X,y)
+
+    #get curve
+    plot_learning_curve(lm,'learnCurve',X,y)
 
     #get score
     df = unicon.forecast(lm)

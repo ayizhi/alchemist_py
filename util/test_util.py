@@ -19,9 +19,9 @@ class Test_util(object):
         profit_6 = self.db.get_profit_by_days(ticker,5,target_date_6)
         profit_6_max = self.db.get_max_profit_by_days(ticker,5,target_date_6)
 
-        target_date_3 = date + datetime.timedelta(days=3)
-        profit_3 = self.db.get_profit_by_days(ticker,2,target_date_3)
-        profit_3_max = self.db.get_max_profit_by_days(ticker,2,target_date_3)
+        target_date_3 = date + datetime.timedelta(days=4)
+        profit_3 = self.db.get_profit_by_days(ticker,4,target_date_3)
+        profit_3_max = self.db.get_max_profit_by_days(ticker,4,target_date_3)
 
 
         return {
@@ -30,7 +30,7 @@ class Test_util(object):
                 'profit_10_max': profit_10_max,
                 'profit_6': profit_6,
                 'profit_6_max': profit_6_max,
-                'profit_3': profit_3,
-                'profit_3_max': profit_3_max,
+                'profit_4': profit_3,
+                'profit_4_max': profit_3_max,
                 }
 
