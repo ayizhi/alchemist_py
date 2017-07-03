@@ -50,7 +50,7 @@ class Unicon_strategy(Strategy):
             # else:
             #     data_Y.append(-1)
 
-            data_Y.append(float(profit_percent))
+            data_Y.append(float(profit))
             data_X.append(np.array(ticker_data['close']))
 
             # if(index > 100):
@@ -65,6 +65,7 @@ class Unicon_strategy(Strategy):
     def get_r2(self,X,y):
         #normalize
         X = self.feature_util.normalize(X)
+        y = self.feature_util.normalize(y)
 
         print (X,y)
 
@@ -128,10 +129,11 @@ class Unicon_strategy(Strategy):
 
         close_np = np.array(close_list)
         profit_np = np.array(profit_list)
+        profit_np = self.feature_util.normalize(profit_np)
 
         #normalize
         close_np = self.feature_util.normalize(close_np)
-        # predict_np = model.predict(np.array(close_list))
+        predict_np = model.predict(np.array(close_list))
 
         print('r2 is: ', r2_score(predict_np,profit_np))
 
