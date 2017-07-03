@@ -7,6 +7,7 @@ import pyqtgraph as pg
 import pyqtgraph.examples
 from pyqtgraph.Qt import QtGui
 import matplotlib.pyplot as plt
+from sklearn.learning_curve import learning_curve
 
 
 
