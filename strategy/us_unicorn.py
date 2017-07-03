@@ -8,7 +8,7 @@ import sys
 sys.path.append('../')
 from db.us_db import US_Database
 from util.feature_util import Feature_util
-from Util.plot_util import Plot_util
+from util.plot_util import Plot_util
 from sklearn.linear_model import Lasso,LinearRegression,Ridge,LassoLars
 from sklearn.metrics import r2_score
 from sklearn.ensemble import RandomForestRegressor
