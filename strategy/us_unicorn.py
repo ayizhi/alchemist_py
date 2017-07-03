@@ -32,8 +32,10 @@ class Unicon_strategy(Strategy):
         data_X = [];
         data_Y = [];
 
-        for ticker in symbols:
+        for index in range(len(symbols)):
+            ticker = symbols[index]
             print(ticker,'==============================================')
+
 
             start_date = self.target_date - datetime.timedelta(days=(self.feature_date_range))
             end_date = self.target_date
@@ -41,7 +43,6 @@ class Unicon_strategy(Strategy):
 
             if ticker_data.empty :
                 continue
-            print(self.db.get_profit_by_days(ticker,self.profit_date_range,self.target_date + datetime.timedelta(days=self.profit_date_range)),'..................................')
             profit,profit_percent = self.db.get_profit_by_days(ticker,self.profit_date_range,self.target_date + datetime.timedelta(days=self.profit_date_range))
 
             # if profit > 0:
@@ -49,8 +50,11 @@ class Unicon_strategy(Strategy):
             # else:
             #     data_Y.append(-1)
 
-            data_Y.append(profit_percent)
+            data_Y.append(float(profit_percent))
             data_X.append(np.array(ticker_data['close']))
+
+            # if(index > 100):
+            #     break
 
 
         data_X = np.array(data_X)
@@ -64,9 +68,9 @@ class Unicon_strategy(Strategy):
 
         print (X,y)
 
-
         train_x,test_x = cross_validation.train_test_split(X,test_size=0.3,random_state=0)
         train_y,test_y = cross_validation.train_test_split(y,test_size=0.3,random_state=0)
+
 
         models = [
         ('LR',LinearRegression()),
@@ -74,13 +78,17 @@ class Unicon_strategy(Strategy):
         ('lasso',Lasso(alpha=0.00001)),
         ('LassoLars',LassoLars(alpha=0.00001)),
         ('RandomForestRegression',RandomForestRegressor(2000)),
-        ('LogisticRegression',LogisticRegression(C=1.0,penalty="l1",tol=1e-6))]
+        ]
 
         best_r2 = (0,0,None)
+
+        print(train_x,train_y,train_x.shape,train_y.shape)
+
         for m in models:
             m[1].fit(train_x,train_y)
             pred_y = m[1].predict(test_x)
             r2 = r2_score(pred_y,test_y)
+            print(m[0],r2,'=============')
             if r2 > best_r2[1]:
                 best_r2 = (m[0],r2,m[1])
 
