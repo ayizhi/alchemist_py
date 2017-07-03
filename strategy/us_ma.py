@@ -84,7 +84,6 @@ class MA_strategy(Strategy):
 
 
 
-        print(pd.DataFrame(self.ticker_filter_result))
         if (len(self.ticker_filter_result)) == 0:
             return pd.DataFrame()
 

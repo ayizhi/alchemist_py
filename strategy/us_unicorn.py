@@ -51,8 +51,6 @@ class Unicon_strategy(Strategy):
         return (data_X,data_Y)
 
     def get_r2(self,X,y):
-        data_X,data_Y = self.pre_deal_data()
-
         train_x,test_x = cross_validation.train_test_split(data_X,test_size=0.3,random_state=0)
         train_y,test_y = cross_validation.train_test_split(data_Y,test_size=0.3,random_state=0)
 
@@ -106,9 +104,19 @@ class Unicon_strategy(Strategy):
         profit_np = np.array(profit_list)
         predict_np = model.predict(np.array(close_list))
 
+
         print('r2 is: ', r2_score(predict_np,profit_np))
 
         df = pd.DataFrame({'predict': predict_np, 'profit': profit_np})
+
+        df.loc[df.predict > 0,'predict'] = 1
+        df.loc[df.predict < 0,'predict'] = -1
+
+        df.loc[df.profit > 0,'profit'] = 1
+        df.loc[df.profit < 0,'profit'] = -1
+
+        print('r2 -1/1 is: ', r2_score(df['predict'],df['profit']))
+
         return df
 
 
