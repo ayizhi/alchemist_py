@@ -80,9 +80,9 @@ class Feature_util(object):
 		return data
 
 	def normalize(self,X):
-	    scaler = preprocessing.StandardScaler()
-        X_param = scaler.fit(X)
-        X = scaler.fit_transform(X,X_param)
+		scaler = preprocessing.StandardScaler()
+		X_param = scaler.fit(X)
+		X = scaler.fit_transform(X,X_param)
 		return X
 
 	#find most important 10 feature
