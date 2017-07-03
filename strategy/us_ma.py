@@ -23,7 +23,7 @@ class MA_strategy(Strategy):
         self.tickers = tickers
         self.ticker_filter_result = [];
         # self.target_date = datetime.datetime.today() #策略的时间点
-        self.target_date = datetime.datetime(2017,4,1)
+        self.target_date = datetime.datetime(2017,6,1)
 
     def filter_ticker(self):
         print('is calculating ...')

@@ -51,8 +51,8 @@ class Unicon_strategy(Strategy):
         return (data_X,data_Y)
 
     def get_r2(self,X,y):
-        train_x,test_x = cross_validation.train_test_split(data_X,test_size=0.3,random_state=0)
-        train_y,test_y = cross_validation.train_test_split(data_Y,test_size=0.3,random_state=0)
+        train_x,test_x = cross_validation.train_test_split(X,test_size=0.3,random_state=0)
+        train_y,test_y = cross_validation.train_test_split(y,test_size=0.3,random_state=0)
 
         print(train_x.shape,train_y.shape,test_x.shape,test_y.shape)
 
