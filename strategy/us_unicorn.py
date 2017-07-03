@@ -79,23 +79,37 @@ class Unicon_strategy(Strategy):
 
 
     def forecast(self,model):
-        try_date = datetime.datetime(2017,5,1)
+        if model == None:
+            print('model is None')
 
+        self.forecast_date = datetime.datetime(2017,5,1)
         symbols = self.db.get_symbol_from_db()
 
-        df_list = []
+        #build a empty list to be a content
+        close_list = []
+        profit_list = []
 
         for ticker in symbols:
-            start_date = try_date - datetime.timedelta(days=(self.feature_date_range))
-            ticker_data = self.db.get_ticker_by_id(ticker,start_date,try_date)
+            start_date = self.forecast_date - datetime.timedelta(days=(self.feature_date_range))
+            ticker_data = self.db.get_ticker_by_id(ticker,start_date,self.forecast_date)
 
             if ticker_data.empty :
                 continue
 
-            X = ticker_data['close']
-            predict = model.predict(X)
-            profit = self.db.get_profit_by_days(ticker,self.profit_date_range,try_date + datetime.timedelta(days=self.profit_date_range))
+            close = ticker_data['close']
+            close_list.append(close)
 
+            profit = self.db.get_profit_by_days(ticker,self.profit_date_range,self.forecast_date + datetime.timedelta(days=self.profit_date_range))
+            profit_list.append(profit)
+
+        close_np = np.array(close_list)
+        profit_np = np.array(profit_list)
+        predict_np = model.predict(np.array(close_list))
+
+        print('r2 is: ', r2_score(predict_np,profit_np))
+
+        df = pd.DataFrame({'predict': predict_np, 'profit': profit_np})
+        return df
 
 
 
@@ -115,4 +129,5 @@ if __name__ == '__main__':
     lm = unicon.get_r2(X,y)
 
     #get score
-    unicon.forecast(lm)
+    df = unicon.forecast(lm)
+    print(df)
