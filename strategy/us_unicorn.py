@@ -160,4 +160,4 @@ if __name__ == '__main__':
     print('==============')
     print('==============')
     print('==============')
-    print(df[df.predict > 0 and df.profit > 0])
+    print(df.loc[(df.predict > 0 and df.profit > 0)])
