@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 
 
-class PlotUtil(object):
+class Plot_util(object):
     def __init__(self):
         self.win = pg.GraphicsWindow()
         self.win.resize(1000,600)
