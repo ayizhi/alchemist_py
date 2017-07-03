@@ -72,7 +72,7 @@ class Unicon_strategy(Strategy):
         ('RidgeR',Ridge (alpha = 0.005)),
         ('lasso',Lasso(alpha=0.00001)),
         ('LassoLars',LassoLars(alpha=0.00001)),
-        ('RandomForestRegression',RandomForestRegressor(2000))
+        ('RandomForestRegression',RandomForestRegressor(2000)),
         ('LogisticRegression',LogisticRegression(C=1.0,penalty="l1",tol=1e-6))]
 
         best_r2 = (0,0,None)
