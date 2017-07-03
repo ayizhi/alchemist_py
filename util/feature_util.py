@@ -8,6 +8,7 @@ import pandas as pd
 import numpy as np
 from sklearn.datasets import make_classification
 from sklearn.ensemble import ExtraTreesClassifier
+import sklearn.preprocessing as preprocessing
 
 
 class Feature_util(object):
@@ -77,6 +78,12 @@ class Feature_util(object):
 		B2 = pd.Series(b2, name = 'Lower BollingerBand')
 		data = data.join([B1,B2])
 		return data
+
+	def normalize(self,X):
+	    scaler = preprocessing.StandardScaler()
+        X_param = scaler.fit(X)
+        X = scaler.fit_transform(X,X_param)
+		return X
 
 	#find most important 10 feature
 	def find_most_important_feature(self,data_x,data_y,feature_num,n_estimators,random_state=0):

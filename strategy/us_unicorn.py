@@ -54,11 +54,8 @@ class Unicon_strategy(Strategy):
 
     def get_r2(self,X,y):
         #normalize
-        scaler = preprocessing.StandardScaler()
-        X_param = scaler.fit(X)
-        X = scaler.fit_transform(X,X_param)
-        y_param = scaler.fit(y)
-        y = scaler.fit_transform(y,y_param)
+        X = self.feature_util(X)
+        y = self.feature_util(y)
 
         print (X,y)
 
@@ -114,6 +111,11 @@ class Unicon_strategy(Strategy):
 
         close_np = np.array(close_list)
         profit_np = np.array(profit_list)
+
+        #normalize
+        close_np = self.feature_util.normalize(close_np)
+        profit_np = self.feature_util.normalize(profit_np)
+
         predict_np = model.predict(np.array(close_list))
 
 
@@ -150,8 +152,12 @@ if __name__ == '__main__':
     lm = unicon.get_r2(X,y)
 
     #get curve
-    plot_learning_curve(lm,'learnCurve',X,y)
+    plt.plot_learning_curve(lm,'learnCurve',X,y)
 
     #get score
     df = unicon.forecast(lm)
     print(df)
+    print('==============')
+    print('==============')
+    print('==============')
+    print(df[df.predict > 0 and df.profit > 0])
