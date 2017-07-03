@@ -47,7 +47,7 @@ class US_Database(Database):
 
     #get the lastest date , str to datetime
     def get_the_last_date_from_db(self):
-        dateList = list(self.daily_price_collection.find({'ticker': 'A'}).sort_values(by=['date'], ascending=False))
+        dateList = list(self.daily_price_collection.find({'ticker': 'A'}).sort('date', pymongo.DESCENDING))
         if len(dateList) == 0:
             return None
         last_date_str = dateList[0]['date']
@@ -172,9 +172,8 @@ class US_Database(Database):
         if ticker_data.empty:
             return 0
 
-        # print ([tick?er_data.close[0]] * 10)
-        profit = ticker_data.close.as_matrix() - np.array([ticker_data.close[0]] * 10)
-        print(profit)
+        profit = ticker_data.close.as_matrix() - np.array([ticker_data.close[0]] * ticker_data.close.shape[0])
+        return profit.max()
 
 
 
@@ -182,6 +181,5 @@ class US_Database(Database):
 
 if __name__ == '__main__':
     db = US_Database()
-    profit = db.get_max_profit_by_days('A',10,datetime.datetime(2017,5,1))
-    print (profit)
+    db.download_all_data_until_today()
 

@@ -16,11 +16,10 @@ from sklearn.ensemble import RandomForestRegressor
 
 class Unicon_strategy(Strategy):
     def __init__(self):
-        self.target_date = datetime.datetime(2017,3,1)
-
-        self.feature_date_range = 10
+        self.target_date = datetime.datetime(2016,3,1)
+        self.forecast_date = datetime.datetime(2017,5,1)
+        self.feature_date_range = 200
         self.profit_date_range = 3
-        self.more_date = 5 #移动平均需要多出来的数据
         self.db = US_Database()
         self.feature_util = Feature_util()
 
@@ -31,48 +30,18 @@ class Unicon_strategy(Strategy):
         data_Y = [];
 
         for ticker in symbols:
-            start_date = self.target_date - datetime.timedelta(days=(self.feature_date_range + self.more_date))
-            ticker_data = self.db.get_ticker_by_id(ticker,start_date,self.target_date)
+            print(ticker,'==============================================')
+
+            start_date = self.target_date - datetime.timedelta(days=(self.feature_date_range))
+            end_date = self.target_date
+            ticker_data = self.db.get_ticker_by_id(ticker,start_date,end_date)
 
             if ticker_data.empty :
                 continue
 
-            # #addFeatures
-            # ticker_data = self.feature_util.CCI(ticker_data,self.more_date)
-            # ticker_data = self.feature_util.TL(ticker_data,self.more_date)
-            # ticker_data = self.feature_util.EVM(ticker_data,self.more_date)
-            # ticker_data = self.feature_util.SMA(ticker_data,self.more_date)
-            # ticker_data = self.feature_util.EWMA(ticker_data,self.more_date)
-            # ticker_data = self.feature_util.ROC(ticker_data,self.more_date)
-            # ticker_data = self.feature_util.BBANDS(ticker_data,self.more_date)
-            # ticker_data = ticker_data.dropna()
-
-            date_range = pd.date_range(start=self.target_date - datetime.timedelta(days=(self.feature_date_range)),end=self.target_date)
-            ticker_data = ticker_data[date_range[0]: date_range[-1]]
-
-            # #profit
-            # profit_list = [];
-            # for date in date_range:
-            #     profit = self.db.get_profit_by_days(ticker,self.profit_date_range,date + datetime.timedelta(days=self.profit_date_range))
-            #     profit_list.append(profit)
-
-            # #formalize
-            # ticker_data = (ticker_data - ticker_data.mean())/(ticker_data.max() - ticker_data.min())
-
-            # #get import feature
-            # train_x = pd.DataFrame(ticker_data,dtype="|S6")
-            # train_y = pd.Series(profit_list,index=date_range,dtype='|S6')
-            # important_features = self.feature_util.find_most_important_feature(train_x,train_y,5,5)[0: 5]
-
-            # ticker_data = ticker_data[important_features]
-
-            #append x and y into summary data content
-            print(ticker,'=-=============================================')
-
+            profit = self.db.get_profit_by_days(ticker,self.profit_date_range,self.target_date + datetime.timedelta(days=self.profit_date_range))
             data_X.append(np.array(ticker_data['close']))
-            data_Y.append(
-                self.db.get_profit_by_days(ticker,self.profit_date_range,self.target_date + datetime.timedelta(days=self.profit_date_range))
-                )
+            data_Y.append(profit)
 
 
         data_X = np.array(data_X)
@@ -80,17 +49,17 @@ class Unicon_strategy(Strategy):
 
         return (data_X,data_Y)
 
-    def get_r2(self):
+    def get_r2(self,X,y):
         data_X,data_Y = self.pre_deal_data()
 
-        data_len = len(data_X)
+        data_len = len(X)
         i = int(data_len * 0.8)
 
-        train_x = data_X[:i]
-        train_y = data_Y[:i]
+        train_x = X[:i]
+        train_y = y[:i]
 
-        test_x = data_X[i:]
-        test_y = data_Y[i:]
+        test_x = X[i:]
+        test_y = y[i:]
 
         models = [
         ('LR',LinearRegression()),
@@ -98,8 +67,6 @@ class Unicon_strategy(Strategy):
         ('lasso',Lasso(alpha=0.00001)),
         ('LassoLars',LassoLars(alpha=0.00001)),
         ('RandomForestRegression',RandomForestRegressor(1000))]
-
-        print(data_X,data_Y)
 
         best_r2 = (0,0,None)
         for m in models:
@@ -114,8 +81,7 @@ class Unicon_strategy(Strategy):
         return best_r2[2]
 
 
-    def forecast(self):
-        model = self.get_r2()
+    def forecast(self,model):
         try_date = datetime.datetime(2017,5,1)
 
         symbols = self.db.get_symbol_from_db()
@@ -129,24 +95,11 @@ class Unicon_strategy(Strategy):
             if ticker_data.empty :
                 continue
 
-            close = ticker_data['close']
-            print (close,'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
-            predict = model.predict(close)
+            X = ticker_data['close']
+            predict = model.predict(X)
             profit = self.db.get_profit_by_days(ticker,self.profit_date_range,try_date + datetime.timedelta(days=self.profit_date_range))
 
-            if predict > 0:
-                df_list.append({
-                    'predict': predict,
-                    'profit': profit
-                    })
 
-        df = pd.DataFrame(df_list)
-        print(df.shape)
-
-
-        print(df[df['profit'] > 0].shape)
-
-        print(df)
 
 
 
@@ -155,5 +108,13 @@ class Unicon_strategy(Strategy):
 
 
 if __name__ == '__main__':
+
     unicon = Unicon_strategy()
-    unicon.forecast()
+    #get X,y
+    X,y = unicon.pre_deal_data()
+
+    #get the best model
+    lm = unicon.get_r2(X,y)
+
+    #get score
+    unicon.forecast(lm)
