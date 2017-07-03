@@ -9,6 +9,7 @@ import numpy as np
 from sklearn.datasets import make_classification
 from sklearn.ensemble import ExtraTreesClassifier
 import sklearn.preprocessing as preprocessing
+from sklearn.learning_curve import learning_curve
 
 
 class Feature_util(object):
