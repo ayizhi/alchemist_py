@@ -54,8 +54,8 @@ class Unicon_strategy(Strategy):
 
     def get_r2(self,X,y):
         #normalize
-        X = self.feature_util(X)
-        y = self.feature_util(y)
+        X = self.feature_util.normalize(X)
+        y = self.feature_util.normalize(y)
 
         print (X,y)
 
