@@ -9,7 +9,7 @@ sys.path.append('../')
 from db.us_db import US_Database
 from util.feature_util import Feature_util
 from util.plot_util import Plot_util
-from sklearn.linear_model import Lasso,LinearRegression,Ridge,LassoLars
+from sklearn.linear_model import Lasso,LinearRegression,Ridge,LassoLars,LogisticRegression
 from sklearn.metrics import r2_score
 from sklearn.ensemble import RandomForestRegressor
 from sklearn import cross_validation
@@ -72,7 +72,8 @@ class Unicon_strategy(Strategy):
         ('RidgeR',Ridge (alpha = 0.005)),
         ('lasso',Lasso(alpha=0.00001)),
         ('LassoLars',LassoLars(alpha=0.00001)),
-        ('RandomForestRegression',RandomForestRegressor(2000))]
+        ('RandomForestRegression',RandomForestRegressor(2000))
+        ('LogisticRegression',LogisticRegression(C=1.0,penalty="l1",tol=1e-6))]
 
         best_r2 = (0,0,None)
         for m in models:
