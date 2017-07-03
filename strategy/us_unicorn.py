@@ -11,6 +11,7 @@ from util.feature_util import Feature_util
 from sklearn.linear_model import Lasso,LinearRegression,Ridge,LassoLars
 from sklearn.metrics import r2_score
 from sklearn.ensemble import RandomForestRegressor
+from sklearn import cross_validation
 
 
 
@@ -18,7 +19,7 @@ class Unicon_strategy(Strategy):
     def __init__(self):
         self.target_date = datetime.datetime(2016,3,1)
         self.forecast_date = datetime.datetime(2017,5,1)
-        self.feature_date_range = 200
+        self.feature_date_range = 100
         self.profit_date_range = 3
         self.db = US_Database()
         self.feature_util = Feature_util()
@@ -52,21 +53,17 @@ class Unicon_strategy(Strategy):
     def get_r2(self,X,y):
         data_X,data_Y = self.pre_deal_data()
 
-        data_len = len(X)
-        i = int(data_len * 0.8)
+        train_x,test_x = cross_validation.train_test_split(data_X,test_size=0.3,random_state=0)
+        train_y,test_y = cross_validation.train_test_split(data_Y,test_size=0.3,random_state=0)
 
-        train_x = X[:i]
-        train_y = y[:i]
-
-        test_x = X[i:]
-        test_y = y[i:]
+        print(train_x.shape,train_y.shape,test_x.shape,test_y.shape)
 
         models = [
         ('LR',LinearRegression()),
         ('RidgeR',Ridge (alpha = 0.005)),
         ('lasso',Lasso(alpha=0.00001)),
         ('LassoLars',LassoLars(alpha=0.00001)),
-        ('RandomForestRegression',RandomForestRegressor(1000))]
+        ('RandomForestRegression',RandomForestRegressor(2000))]
 
         best_r2 = (0,0,None)
         for m in models:
@@ -98,6 +95,7 @@ class Unicon_strategy(Strategy):
             X = ticker_data['close']
             predict = model.predict(X)
             profit = self.db.get_profit_by_days(ticker,self.profit_date_range,try_date + datetime.timedelta(days=self.profit_date_range))
+
 
 
 
