@@ -178,6 +178,22 @@ class US_Database(Database):
         profit_percent = profit / np.array([ticker_data.close[0]] * ticker_data.close.shape[0])
         return profit.max(),profit_percent.max()
 
+    def get_std_by_days(self,ticker_id,days,target_date=datetime.datetime.today()):
+        end_date = target_date
+        start_date = (target_date + datetime.timedelta(days = - 1 * days))
+        date_range = pd.date_range(start=start_date,end=end_date)
+        #get ma
+        ticker_data = self.get_ticker_by_id(ticker_id,start_date,end_date)
+        ticker_data = ticker_data.reindex(date_range).fillna(method="ffill").fillna(method='bfill')
+        if ticker_data.empty:
+            return -1
+
+        close = ticker_data['close'].as_matrix()
+        std = np.std(close)
+        return std
+
+
+
 
 
 

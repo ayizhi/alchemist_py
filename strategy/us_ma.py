@@ -34,10 +34,10 @@ class MA_strategy(Strategy):
                 continue
             #price between 5 ~ 25
             price = ticker_data['close'][-1]
-            profit_short_k,profit_percent = self.db.get_profit_by_days(ticker,self.short_k_day,self.target_date)
+            profit_short_k,profit_short_percent = self.db.get_profit_by_days(ticker,self.short_k_day,self.target_date)
 
 
-            if price >= 15 and price <= 25 and profit_short_k > 0:
+            if price >= 10 and price <= 30 and profit_short_percent > 0:
                 #short < middle < short
                 short_k = self.db.get_moving_average_price(ticker,self.target_range,self.short_k_day,self.target_date)['close']
                 middle_k = self.db.get_moving_average_price(ticker,self.target_range,self.middle_k_day,self.target_date)['close']
@@ -51,7 +51,7 @@ class MA_strategy(Strategy):
                 #接下来还要从以下几点考虑
                 #成交量，20% － 50％，
                 #盈利前 10-30％
-                if(short_k_price > middle_k_price) and (middle_k_price > long_k_price) and abs(middle_k_price - long_k_price)/(long_k_price) < 0.02:
+                if(short_k_price > middle_k_price) and (middle_k_price > long_k_price) and abs(short_k_price - middle_k_price)/(middle_k_price) < 0.02:
 
                     #linear regression
                     reg = linear_model.LinearRegression()
@@ -74,12 +74,15 @@ class MA_strategy(Strategy):
                     long_k_coef = reg.coef_
                     long_k_intercept = reg.intercept_
 
+                    short_std = self.db.get_std_by_days(ticker,self.short_k_day,self.target_date)
+
                     if short_k_coef > middle_k_coef and middle_k_coef > long_k_coef:
 
                         self.ticker_filter_result.append({
                             'ticker': ticker,
-                            'profit': profit_short_k,
-                            'volume': volume
+                            'profit': profit_short_percent,
+                            'volume': volume,
+                            'std': short_std
                             })
 
 
@@ -116,7 +119,9 @@ if __name__ == '__main__':
             profit_obj = test.test_profit_by_date(ticker, ma.target_date)
             profit_list.append(profit_obj)
         profit_df = pd.DataFrame(profit_list)
-        print (profit_df)
+
+
+        print (profit_df.sort_values(by=['std_10']))
 
 
 
