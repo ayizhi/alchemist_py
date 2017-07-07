@@ -10,7 +10,6 @@ import matplotlib.pyplot as plt
 from sklearn.learning_curve import learning_curve
 
 
-
 class Plot_util(object):
     def __init__(self):
         self.win = pg.GraphicsWindow()
@@ -20,7 +19,7 @@ class Plot_util(object):
         pg = self.win.addPlot(title="plot a line")
         pg.plot(np_normal,pen=(255,0,0))
         QtGui.QApplication.exec_()
-
+        
     def plot_point(self,np_normal):
         pg = self.win.addPlot(title="plot points")
         pg.plot(np_normal,pen=(200,200,200), symbolBrush=(255,255,0), symbolPen='w')
