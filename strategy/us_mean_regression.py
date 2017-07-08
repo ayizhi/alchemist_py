@@ -88,13 +88,19 @@ if __name__ == '__main__':
 		symbol = symbols[i]
 		hurst = get_hurst(symbol,db)
 		print(i,hurst)
-		hurst_list.append(hurst)
+		hurst_list.append({
+			'ticker': symbol,
+			'hurst': hurst
+			})
 
-		if i > 1000:
-			break
 
-	np1 = np.array(hurst_list)
-	np1 = np1[~np.isnan(np1)]
-	sns.distplot(np1)
+	df = pd.DataFrame(hurst_list).dropna()
+
+	sns.distplot(df['hurst'])
 	sns.plt.show()
+
+	df2 = df.loc[df['hurst'] < -10]
+	print (df2)
+
+
 
