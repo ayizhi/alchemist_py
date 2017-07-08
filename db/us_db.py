@@ -192,7 +192,15 @@ class US_Database(Database):
         std = np.std(close)
         return std
 
-
+    def get_pct_change(self,ticker_id,days,target_date=datetime.datetime.today()):
+        end_date = target_date
+        start_date = (target_date + datetime.timedelta(days = - 1 * days))
+        ticker_data = self.get_ticker_by_id(ticker_id,start_date,end_date)
+        if ticker_data.empty:
+            return pd.DataFrame()
+        ticker_pct = pd.Series((ticker_data['close'] - ticker_data['open']) / ticker_data['open'],name="pct")
+        ticker_data = ticker_data.join(ticker_pct)
+        return ticker_data
 
 
 
