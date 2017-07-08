@@ -98,10 +98,8 @@ if __name__ == '__main__':
 
 	df2 = df.loc[df['hurst'] < -10]
 
-	for i in df2:
-		symbol = df2[i]['ticker']
-		data = db.get_pct_change(me)
-	print (df2)
+	print(df)
+
 
 
 
