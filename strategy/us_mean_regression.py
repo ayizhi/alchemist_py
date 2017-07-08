@@ -65,12 +65,8 @@ def get_hurst(ticker_id,db,days=100,target_date=datetime.datetime.today()):
 			mini = min(Deviation)
 			RS.append(maxi - mini)
 			sigma = np.std(Range)
-			if sigma == 0:
-				RS[i] = 0
-			else:
-				RS[i] = RS[i] / sigma
 
-		ARS[r] = np.mean(RS)
+		ARS[r] = np.mean(RS[~np.isnan(RS)])
 
 	lag = np.log10(lag)
 	ARS = np.log10(ARS)
@@ -100,6 +96,10 @@ if __name__ == '__main__':
 	sns.plt.show()
 
 	df2 = df.loc[df['hurst'] < -10]
+
+	for i in df2:
+		symbol = df2[i]['ticker']
+		data = db.get_pct_change(me)
 	print (df2)
 
 
