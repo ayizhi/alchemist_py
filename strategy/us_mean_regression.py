@@ -94,7 +94,7 @@ if __name__ == '__main__':
 			break
 
 	np1 = np.array(hurst_list)
-	np1 = np1.logical_not(np1.isnan(x))
+	np1 = np1[~np.isnan(np1)]
 	sns.distplot(np1)
 	sns.plt.show()
 
