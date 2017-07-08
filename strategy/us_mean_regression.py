@@ -43,7 +43,7 @@ def get_hurst(ticker_id,db,days=100,target_date=datetime.datetime.today()):
 	if daily_return.empty:
 		return 0.5
 	else:
-		daily_return = daily_return['pct'][1:]
+		daily_return = daily_return['pct'][1:] * 100
 	ranges = ['1','2','4','8','16','32']
 	lag = pd.Series(index = ranges)
 	for i in range(len(ranges)):
