@@ -76,6 +76,7 @@ def get_hurst(ticker_id,db,days=100,target_date=datetime.datetime.today()):
 	ARS = np.log10(ARS)
 	hurst_exponent = np.polyfit(lag,ARS,1)
 	hurst = hurst_exponent[0] * 2
+
 	return hurst
 
 if __name__ == '__main__':
@@ -84,11 +85,13 @@ if __name__ == '__main__':
 	# get_adf(symbols,db,datetime.datetime(2017,5,1))
 	hurst_list = []
 	for i in range(len(symbols)):
-		print(i)
 		symbol = symbols[i]
 		hurst = get_hurst(symbol,db)
+		print(i,hurst)
 		hurst_list.append(hurst)
 
-	sns.distplot(hurst_list)
+	np1 = np.array(hurst_list)
+	np1 = np1.logical_not(np1.isnan(x))
+	sns.distplot(np1)
 	sns.plt.show()
 
