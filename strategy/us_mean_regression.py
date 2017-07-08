@@ -66,6 +66,7 @@ def get_hurst(ticker_id,db,days=100,target_date=datetime.datetime.today()):
 			RS.append(maxi - mini)
 			sigma = np.std(Range)
 
+		RS = np.array(RS)
 		ARS[r] = np.mean(RS[~np.isnan(RS)])
 
 	lag = np.log10(lag)
