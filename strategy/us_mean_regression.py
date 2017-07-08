@@ -90,6 +90,9 @@ if __name__ == '__main__':
 		print(i,hurst)
 		hurst_list.append(hurst)
 
+		if i > 1000:
+			break
+
 	np1 = np.array(hurst_list)
 	np1 = np1.logical_not(np1.isnan(x))
 	sns.distplot(np1)
