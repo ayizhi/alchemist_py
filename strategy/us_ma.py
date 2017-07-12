@@ -62,6 +62,7 @@ class MA_strategy(Strategy):
                     train_long_x = np.arange(long_k.shape[0]).reshape(long_k.shape[0],1)
                     train_long_y = np.array(long_k)
 
+
                     reg.fit(train_short_x,train_short_y)
                     short_k_coef = reg.coef_
                     short_k_intercept = reg.intercept_

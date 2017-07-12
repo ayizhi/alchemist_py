@@ -107,6 +107,23 @@ class US_Database(Database):
         else:
             return pd.DataFrame()
 
+    #get ticker by id (not consecutive date)
+    def get_ticker_by_id_not_consecutive_date(self,ticker_id,start_date=datetime.datetime(2016,5,1),end_date=datetime.datetime.today()):
+        start_date = start_date.strftime('%Y-%m-%d')
+        end_date = end_date.strftime('%Y-%m-%d')
+        date_range = {'$gte': start_date,'$lt': end_date}
+        ticker_data = self.daily_price_collection.find({'ticker': ticker_id,'date': date_range})
+        ticker_data_df = pd.DataFrame(list(ticker_data))
+
+        if ticker_data_df.empty != True:
+            date_range = pd.date_range(start=start_date,end=end_date)
+            ticker_data_df = ticker_data_df[['adj_close','adj_high','adj_low','adj_open','volume']].set_index(ticker_data_df['date'])
+            #index from str to datetime
+            ticker_data_df.rename(columns={'adj_close': 'close','adj_high': 'high','adj_low': 'low','adj_open': 'open'},inplace=True)
+            return ticker_data_df
+        else:
+            return pd.DataFrame()
+
     #get 33%-66% volume by day range
     def get_33_66_volume_by_day_symbol(self,days,target_date=datetime.datetime.today()):
         end_date = target_date.strftime('%Y-%m-%d')
