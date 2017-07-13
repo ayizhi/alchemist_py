@@ -77,7 +77,7 @@ class MA_strategy(Strategy):
 
                     short_std = self.db.get_std_by_days(ticker,self.short_k_day,self.target_date)
 
-                    if short_k_coef > middle_k_coef and middle_k_coef > long_k_coef:
+                    if short_k_coef > middle_k_coef and middle_k_coef > long_k_coef and long_k_coef < 0:
 
                         self.ticker_filter_result.append({
                             'ticker': ticker,
