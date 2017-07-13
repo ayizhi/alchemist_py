@@ -34,8 +34,8 @@ class MA_strategy(Strategy):
             return False
         ticker_close = ticker_data.close
         adf = ts.adfuller(ticker_close)
-        print(ticker_id,adf[0] , adf[4]['5%'])
-        if(adf[0] < adf[4]['1%'] and adf[0] < adf[4]['5%'] and adf[0] < adf[4]['10%']):
+        if adf[0] < adf[4]['5%'] and adf[0] < adf[4]['10%']:
+            print(ticker_id,adf[0] , adf[4]['5%'])
             return True
         return False
 
@@ -48,15 +48,17 @@ class MA_strategy(Strategy):
             #in case empty
             if ticker_data.empty == True or ticker_data.shape[0] == 0 :
                 continue
+
+            # ticker_for_adf = self.adjust_adf(ticker,end_date = self.target_date)
+            # if ticker_for_adf != True:
+            #     continue
+
             #price between 5 ~ 25
             price = ticker_data['close'][-1]
             profit_short_k,profit_short_percent = self.db.get_profit_by_days(ticker,self.short_k_day,self.target_date)
 
-            ticker_for_adf = self.adjust_adf(ticker,end_date = self.target_date)
 
-            if ticker_for_adf != True:
-                continue
-
+            
             if price >= 10 and price <= 30 and profit_short_percent > 0:
                 #short < middle < short
                 short_k = self.db.get_moving_average_price(ticker,self.target_range,self.short_k_day,self.target_date)['close']
@@ -67,12 +69,11 @@ class MA_strategy(Strategy):
                 middle_k_price = middle_k[-1]
                 long_k_price = long_k[-1]
                 volume = ticker_data['volume'][-1]
-
+                
                 #接下来还要从以下几点考虑
                 #成交量，20% － 50％，
                 #盈利前 10-30％
                 if(short_k_price > middle_k_price) and (middle_k_price > long_k_price) and abs(short_k_price - middle_k_price)/(middle_k_price) < 0.02:
-
                     #linear regression
                     reg = linear_model.LinearRegression()
                     train_short_x = np.arange(short_k.shape[0]).reshape(short_k.shape[0],1)
