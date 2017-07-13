@@ -10,6 +10,8 @@ import sklearn
 from sklearn import linear_model
 from util.plot_util import Plot_util
 from util.test_util import Test_util
+import statsmodels.tsa.stattools as ts
+
 
 import matplotlib.pyplot as plt
 
@@ -25,8 +27,22 @@ class MA_strategy(Strategy):
         # self.target_date = datetime.datetime.today() #策略的时间点
         self.target_date = datetime.datetime(2017,7,1)
 
+    #检测是不是均值回归形，如果是，则价格高于均值价格会下降，否则，价格会上升
+    def adjust_adf(self,ticker_id,start_date=datetime.datetime(2017,1,1),end_date=datetime.datetime.today()):
+        ticker_data = self.db.get_ticker_by_id(ticker_id,start_date,end_date)
+        if ticker_data.empty :
+            return False
+        ticker_close = ticker_data.close
+        adf = ts.adfuller(ticker_close)
+        print(ticker_id,adf[0] , adf[4]['5%'])
+        if(adf[0] < adf[4]['1%'] and adf[0] < adf[4]['5%'] and adf[0] < adf[4]['10%']):
+            return True
+        return False
+
+
     def filter_ticker(self):
         print('is calculating ...')
+
         for ticker in self.tickers:
             ticker_data = self.db.get_moving_average_price(ticker,self.target_range,1,self.target_date)
             #in case empty
@@ -36,6 +52,10 @@ class MA_strategy(Strategy):
             price = ticker_data['close'][-1]
             profit_short_k,profit_short_percent = self.db.get_profit_by_days(ticker,self.short_k_day,self.target_date)
 
+            ticker_for_adf = self.adjust_adf(ticker,end_date = self.target_date)
+
+            if ticker_for_adf != True:
+                continue
 
             if price >= 10 and price <= 30 and profit_short_percent > 0:
                 #short < middle < short
