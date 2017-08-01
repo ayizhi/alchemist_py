@@ -14,10 +14,13 @@ from util.test_util import Test_util
 import statsmodels.tsa.stattools as ts
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 class Deep_point_strategy(Strategy):
     def __init__(self):
         self.date_range = 15
+        self.lr_range = 50
         self.db = US_Database()
 
     def deal_data(self,symbol):
@@ -29,9 +32,36 @@ class Deep_point_strategy(Strategy):
 
         if not ticker_data[ticker_data['delta_pc'] > 6].empty:
             #then we need to confirm the trend of drop
-            pre_start_date = datetime.datetime.today
-            X_train = ticker_data[]
+            pre_start_date = datetime.datetime.today()
+            pre_target_date = pre_start_date - datetime.timedelta(days=self.lr_range)
+            pre_ticker_data = self.db.get_ticker_by_id_not_consecutive_date(symbol,start_date=pre_target_date).reset_index()
+            X_train = np.array(pre_ticker_data.index)
+            y_train = np.array(pre_ticker_data.close)
+            model = LinearRegression()
+            model.fit(X_train.reshape(X_train.shape[0],1),y_train)
 
+            xx = np.linspace(0,pre_ticker_data.index[-1],1000)
+            yy = model.predict(xx.reshape(xx.shape[0], 1))
+
+            # df_train = pd.DataFrame({'x': X_train,'y': y_train})
+            # df_predict = pd.DataFrame({'x': xx, 'y': yy})
+
+            # sns.jointplot('x','y',df_train[['x','y']],kind = 'scatter',color='red')
+            # sns.jointplot('x','y',df_predict[['x','y']],kind = 'reg',color='blue')
+            # sns.plt.show()
+
+            quadratic_featurizer = PolynomialFeatures(degree=2)
+            X_train_quadratic = quadratic_featurizer.fit_transform(X_train.reshape(X_train.shape[0],1))
+            regressor_quadratic = LinearRegression()
+            regressor_quadratic.fit(X_train_quadratic, y_train)
+
+            xx_quadratic = quadratic_featurizer.transform(xx.reshape(xx.shape[0], 1))
+            yy_quadratic = regressor_quadratic.predict(xx_quadratic)
+
+
+            df_predict_quadratic = pd.DataFrame({'x': xx, 'y': yy_quadratic})
+            sns.jointplot('x','y',df_predict_quadratic[['x','y']],kind = 'reg',color='blue')
+            sns.plt.show()
 
             deep_index = ticker_data[ticker_data['delta_pc'] > 6].index[-1]
             if deep_index <= 2:
