@@ -12,7 +12,8 @@ from sklearn import linear_model
 from util.plot_util import Plot_util
 from util.test_util import Test_util
 import statsmodels.tsa.stattools as ts
-
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import PolynomialFeatures
 
 class Deep_point_strategy(Strategy):
     def __init__(self):
@@ -27,6 +28,11 @@ class Deep_point_strategy(Strategy):
         ticker_data['delta_pc'] = (ticker_data['close'] - ticker_data['open']) * 100 / ticker_data['open']
 
         if not ticker_data[ticker_data['delta_pc'] > 6].empty:
+            #then we need to confirm the trend of drop
+            pre_start_date = datetime.datetime.today
+            X_train = ticker_data[]
+
+
             deep_index = ticker_data[ticker_data['delta_pc'] > 6].index[-1]
             if deep_index <= 2:
                 #volume is so few and the change of price after deep is slience
@@ -41,4 +47,6 @@ if __name__ == '__main__':
     symbols = db.get_33_66_volume_by_day_symbol(20)
     dp = Deep_point_strategy()
     #loop
-    symbols.map(lambda x: dp.deal_data(x))
+    # symbols.map(lambda x: dp.deal_data(x))
+    for symbol in symbols:
+        dp.deal_data(symbol)
