@@ -37,18 +37,11 @@ class Deep_point_strategy(Strategy):
             pre_ticker_data = self.db.get_ticker_by_id_not_consecutive_date(symbol,start_date=pre_target_date).reset_index()
             X_train = np.array(pre_ticker_data.index)
             y_train = np.array(pre_ticker_data.close)
-            model = LinearRegression()
-            model.fit(X_train.reshape(X_train.shape[0],1),y_train)
+            xx = np.linspace(0,pre_ticker_data.index[-1],100)
+            df_train = pd.DataFrame({'x': X_train,'y': y_train})
 
-            xx = np.linspace(0,pre_ticker_data.index[-1],1000)
-            yy = model.predict(xx.reshape(xx.shape[0], 1))
-
-            # df_train = pd.DataFrame({'x': X_train,'y': y_train})
-            # df_predict = pd.DataFrame({'x': xx, 'y': yy})
-
-            # sns.jointplot('x','y',df_train[['x','y']],kind = 'scatter',color='red')
-            # sns.jointplot('x','y',df_predict[['x','y']],kind = 'reg',color='blue')
-            # sns.plt.show()
+        
+            sns.jointplot('x','y',df_train[['x','y']],kind = 'scatter',color='red')
 
             quadratic_featurizer = PolynomialFeatures(degree=2)
             X_train_quadratic = quadratic_featurizer.fit_transform(X_train.reshape(X_train.shape[0],1))
@@ -60,7 +53,7 @@ class Deep_point_strategy(Strategy):
 
 
             df_predict_quadratic = pd.DataFrame({'x': xx, 'y': yy_quadratic})
-            sns.jointplot('x','y',df_predict_quadratic[['x','y']],kind = 'reg',color='blue')
+            sns.jointplot('x','y',df_predict_quadratic[['x','y']],kind = 'scatter',color='blue')
             sns.plt.show()
 
             deep_index = ticker_data[ticker_data['delta_pc'] > 6].index[-1]
@@ -78,5 +71,8 @@ if __name__ == '__main__':
     dp = Deep_point_strategy()
     #loop
     # symbols.map(lambda x: dp.deal_data(x))
-    for symbol in symbols:
+    for index in range(len(symbols)):
+        if index > 100 :
+            break
+        symbol = symbols[index]
         dp.deal_data(symbol)
