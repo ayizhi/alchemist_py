@@ -22,19 +22,21 @@ class Deep_point_strategy(Strategy):
         self.date_range = 15
         self.lr_range = 70
         self.db = US_Database()
+        self.target_date = datetime.datetime(2017,05,04)
 
     def deal_data(self,symbol):
         #find the biggest drop around 10 days
-        start_date = datetime.datetime.today() - datetime.timedelta(self.date_range)
-        ticker_data = self.db.get_ticker_by_id_not_consecutive_date(symbol,start_date=start_date).reset_index()
+        start_date = self.target_date - datetime.timedelta(self.date_range)
+        ticker_data = self.db.get_ticker_by_id_not_consecutive_date(symbol,start_date=start_date,end_date=self.target_date).reset_index()
         ticker_data['delta'] = ticker_data['close'] - ticker_data['open']
         ticker_data['delta_pc'] = (ticker_data['close'] - ticker_data['open']) * 100 / ticker_data['open']
+        mean_price = ticker_data.mean()
 
-        if not ticker_data[ticker_data['delta_pc'] > 6].empty:
+        if not ticker_data[ticker_data['delta_pc'] > 6].empty and mean_price > 10:
             #then we need to confirm the trend of drop
-            pre_start_date = datetime.datetime.today()
+            pre_start_date = self.target_date
             pre_target_date = pre_start_date - datetime.timedelta(days=self.lr_range)
-            pre_ticker_data = self.db.get_ticker_by_id_not_consecutive_date(symbol,start_date=pre_target_date).reset_index()
+            pre_ticker_data = self.db.get_ticker_by_id_not_consecutive_date(symbol,start_date=pre_target_date,end_date=pre_start_date).reset_index()
             X_train = np.array(pre_ticker_data.index)
             y_train = np.array(pre_ticker_data.close)
             xx = np.linspace(0,pre_ticker_data.index[-1],100)
@@ -55,14 +57,16 @@ class Deep_point_strategy(Strategy):
             # 导数为零点
             d_p = (b * -1) / (2 * a)
             d_range = len(X_train)
-            if a > 0 and (d_p > d_range - 10 and d_p < d_range + 10):
+            if a > 0 and (d_p > d_range - 20 and d_p < d_range + 10):
                 print (symbol, d_p, d_range)
+                df_orgin = pd.DataFrame({'x1': X_train, 'y1': y_train})
                 df_predict_quadratic = pd.DataFrame({'x': xx, 'y': yy_quadratic})
-                sns.jointplot('x','y',df_predict_quadratic[['x','y']],kind = 'scatter',color='blue')
-                sns.plt.show()
+                # sns.jointplot('x1','y1',df_orgin[['x1','y1']],kind = 'scatter',color='red')
+                # sns.jointplot('x','y',df_predict_quadratic[['x','y']],kind = 'scatter',color='blue')
+                # sns.plt.show()
 
                 #判断有大跌
-                deep_index = ticker_data[ticker_data['delta_pc'] > 4].index[-1]
+                deep_index = ticker_data[ticker_data['delta_pc'] > 6].index[-1]
                 if deep_index <= 2:
                     #volume is so few and the change of price after deep is slience
                     print(ticker_data.iloc[deep_index : ])
