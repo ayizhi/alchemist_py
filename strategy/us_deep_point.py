@@ -23,8 +23,12 @@ class Deep_point_strategy(Strategy):
         self.lr_range = 70
         self.db = US_Database()
         self.target_date = datetime.datetime(2017,5,4)
-        self.up_volume = 1.4 #大阳线成交量比平均成交量的倍数
+        self.up_volume = 1.2 #大阳线成交量比平均成交量的倍数
         self.up_pc = 5 #大阳线涨幅
+        self.low_volume = 1.2 #大阴线倍数
+        self.low_pc = 5 #大阴线涨幅
+        self.flat_volume = 0.6 #底部成交量比平均倍数
+        self.flat_pc = 2 #底部最好总体涨幅小于2%
 
     def deal_data(self,symbol):
         #find the biggest drop around 10 days
@@ -36,7 +40,8 @@ class Deep_point_strategy(Strategy):
         
         ticker_data['delta'] = ticker_data['close'] - ticker_data['open']
         ticker_data['delta_pc'] = (ticker_data['close'] - ticker_data['open']) * 100 / ticker_data['open']
-        
+                    
+        mean_volume = ticker_data['volume'].mean()
         mean_price = ticker_data.close.mean()
 
         if (not ticker_data[ticker_data['delta_pc'] > 6].empty) :
@@ -74,12 +79,13 @@ class Deep_point_strategy(Strategy):
             #     # sns.plt.show()
 
                 #判断有大跌
-                deep_index = ticker_data[ticker_data['delta_pc'] > 6].index[-1]
-                if deep_index <= 8:
+                lowest_index = ticker_data[ticker_data['delta_pc'] > 6].index[-1]
+                lowest_volume = ticker_data.volume[lowest_index]
+
+                if lowest_index <= 8 and (lowest_volume > self.):
                     #volume is so few and the change of price after deep is slience
-                    after_point_df = ticker_data.iloc[deep_index + 1 : ].reset_index().drop('index',axis=1)
-                    #the volume after the point is only below 60% of average
-                    mean_average = ticker_data['volume'].mean()
+                    after_point_df = ticker_data.iloc[lowest_index + 1 : ].reset_index().drop('index',axis=1)
+
                     #find the biggest grow in after series
                     highest_index = after_point_df[after_point_df['delta_pc'] < self.up_pc * -1]
 
@@ -89,7 +95,7 @@ class Deep_point_strategy(Strategy):
                     highest_index = highest_index.index[0]
                     highest_volume = after_point_df.volume[highest_index]
 
-                    if highest_volume > (self.up_volume * mean_average):
+                    if highest_volume > (self.up_volume * mean_volume):
                         print(after_point_df,'111111111111')
                     
 
