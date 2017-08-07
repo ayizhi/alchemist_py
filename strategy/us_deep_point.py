@@ -44,8 +44,6 @@ class Deep_point_strategy(Strategy):
         mean_volume = ticker_data['volume'].mean()
         mean_price = ticker_data.close.mean()
 
-        if (not ticker_data[ticker_data['delta_pc'] > 6].empty) :
-            if  (mean_price > 10) : 
             # #then we need to confirm the trend of drop
             # pre_start_date = self.target_date
             # pre_target_date = pre_start_date - datetime.timedelta(days=self.lr_range)
@@ -78,26 +76,43 @@ class Deep_point_strategy(Strategy):
             #     # sns.jointplot('x','y',df_predict_quadratic[['x','y']],kind = 'scatter',color='blue')
             #     # sns.plt.show()
 
-                #判断有大跌
-                lowest_index = ticker_data[ticker_data['delta_pc'] > 6].index[-1]
-                lowest_volume = ticker_data.volume[lowest_index]
+        #判断有大跌
+        lowest_df = ticker_data[ticker_data['delta_pc'] < (self.low_pc * -1)]
 
-                if lowest_index <= 8 and (lowest_volume > self.):
-                    #volume is so few and the change of price after deep is slience
-                    after_point_df = ticker_data.iloc[lowest_index + 1 : ].reset_index().drop('index',axis=1)
+        if lowest_df.empty:
+            return
 
-                    #find the biggest grow in after series
-                    highest_index = after_point_df[after_point_df['delta_pc'] < self.up_pc * -1]
+        lowest_index = lowest_df.index[-1]
+        lowest_volume = ticker_data.volume[lowest_index]
 
-                    if highest_index.empty:
-                        return
 
-                    highest_index = highest_index.index[0]
-                    highest_volume = after_point_df.volume[highest_index]
+        if lowest_index <= 8 and (lowest_volume > (self.low_volume * mean_volume)):
+            #volume is so few and the change of price after deep is slience
+            after_point_df = ticker_data.iloc[lowest_index : ].reset_index().drop('index',axis=1)
 
-                    if highest_volume > (self.up_volume * mean_volume):
-                        print(after_point_df,'111111111111')
-                    
+            #find the biggest grow in after series
+            highest_df = after_point_df[after_point_df['delta_pc'] > self.up_pc]
+
+            if highest_df.empty:
+                return
+
+            highest_index = highest_df.index[0]
+            highest_volume = after_point_df.volume[highest_index]
+
+            if highest_index > 3 and highest_volume > (self.up_volume * mean_volume):
+                #判断中间涨幅平稳切 成交量萎缩
+
+                middle_range_df = after_point_df.iloc[1:highest_index]
+
+                middle_volume_average = middle_range_df.volume.mean()
+                middle_price_change_pct = (middle_range_df.close[-1] - middle_range_df.open[0]) / middle_range_df.open[0]
+                
+                if middle_volume_average < mean_volume * self.flat_volume :
+                    if middle_price_change_pct < self.flat_pc:
+                        print (symbol)
+                        print (ticker_data)
+                        print (after_point_df.iloc[:highest_index + 1])
+                        print ('=========')
 
 
 
